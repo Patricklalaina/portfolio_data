@@ -1,12 +1,58 @@
-import { useGetAdminStats } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useGetAdminStats, useListAdminMessages } from "@workspace/api-client-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
-import { Inbox, LayoutTemplate, Activity } from "lucide-react";
+import { format, subDays, isSameDay, differenceInCalendarDays } from "date-fns";
+import { Inbox, LayoutTemplate, Activity, TrendingUp, Clock3 } from "lucide-react";
 import { Link } from "wouter";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+import {
+  AreaChart,
+  Area,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  BarChart,
+  Bar,
+  LabelList,
+} from "recharts";
+
+const messagesChartConfig = {
+  count: {
+    label: "Messages",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig;
+
+const freshnessChartConfig = {
+  days: {
+    label: "Days since update",
+    color: "hsl(var(--chart-2))",
+  },
+} satisfies ChartConfig;
 
 export default function Dashboard() {
   const { data: stats, isLoading, error } = useGetAdminStats();
+  const { data: messages, isLoading: messagesLoading } = useListAdminMessages();
+
+  const messagesByDay = (() => {
+    const days = Array.from({ length: 14 }).map((_, i) => subDays(new Date(), 13 - i));
+    return days.map((day) => ({
+      date: format(day, "MMM d"),
+      count: (messages || []).filter((m) => isSameDay(new Date(m.createdAt), day)).length,
+    }));
+  })();
+
+  const sectionFreshness = (stats?.sections || [])
+    .map((sec) => ({
+      section: sec.section.charAt(0).toUpperCase() + sec.section.slice(1),
+      days: Math.max(0, differenceInCalendarDays(new Date(), new Date(sec.updatedAt))),
+    }))
+    .sort((a, b) => a.days - b.days);
 
   if (isLoading) {
     return (
@@ -79,6 +125,97 @@ export default function Dashboard() {
           <CardContent>
             <div className="text-4xl font-bold font-mono">OK</div>
             <p className="text-xs text-primary-foreground/80 mt-2 font-mono">All services operational</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              Messages — Last 14 Days
+            </CardTitle>
+            <CardDescription className="font-mono text-xs">Contact form submissions over time</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {messagesLoading ? (
+              <Skeleton className="h-[220px] w-full" />
+            ) : (
+              <ChartContainer config={messagesChartConfig} className="h-[220px] w-full">
+                <AreaChart data={messagesByDay} margin={{ left: -20, right: 12, top: 8 }}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    interval={1}
+                  />
+                  <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} width={30} />
+                  <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
+                  <Area
+                    dataKey="count"
+                    type="monotone"
+                    fill="var(--color-count)"
+                    fillOpacity={0.2}
+                    stroke="var(--color-count)"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ChartContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Clock3 className="h-4 w-4 text-primary" />
+              Content Freshness
+            </CardTitle>
+            <CardDescription className="font-mono text-xs">Days since each section was last edited</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <Skeleton className="h-[220px] w-full" />
+            ) : sectionFreshness.length === 0 ? (
+              <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground font-mono">
+                No sections yet
+              </div>
+            ) : (
+              <ChartContainer config={freshnessChartConfig} className="h-[220px] w-full">
+                <BarChart
+                  data={sectionFreshness}
+                  layout="vertical"
+                  margin={{ left: 0, right: 24, top: 4, bottom: 4 }}
+                >
+                  <CartesianGrid horizontal={false} />
+                  <XAxis type="number" dataKey="days" tickLine={false} axisLine={false} allowDecimals={false} hide />
+                  <YAxis
+                    type="category"
+                    dataKey="section"
+                    tickLine={false}
+                    axisLine={false}
+                    width={90}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent indicator="line" hideLabel />}
+                  />
+                  <Bar dataKey="days" fill="var(--color-days)" radius={[0, 4, 4, 0]}>
+                    <LabelList
+                      dataKey="days"
+                      position="right"
+                      className="fill-foreground"
+                      fontSize={11}
+                      formatter={(v: number) => `${v}d`}
+                    />
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
+            )}
           </CardContent>
         </Card>
       </div>

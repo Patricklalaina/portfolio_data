@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Download, Briefcase, Award, Code, Layers, GraduationCap, Mail } from "lucide-react";
+import { Menu, X, Download, Briefcase, Award, Code, Layers, GraduationCap, Mail, Sun, Moon } from "lucide-react";
 import { useGetProfile } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTheme } from "@/contexts/theme-context";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const { data: profile, isLoading } = useGetProfile();
 
@@ -64,6 +66,14 @@ export function Navbar() {
             ))}
           </div>
           <div className="h-4 w-[1px] bg-border" />
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="h-8 w-8 flex items-center justify-center border border-border hover:border-primary/50 text-muted-foreground hover:text-primary transition-colors"
+          >
+            {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+          </button>
           <a
             href="/api/portfolio/resume"
             target="_blank"
@@ -77,12 +87,22 @@ export function Navbar() {
         </nav>
 
         {/* Mobile Toggle */}
-        <button
-          className="md:hidden text-muted-foreground hover:text-foreground"
-          onClick={() => setMobileMenuOpen(true)}
-        >
-          <Menu className="w-6 h-6" />
-        </button>
+        <div className="md:hidden flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="h-8 w-8 flex items-center justify-center border border-border text-muted-foreground hover:text-primary transition-colors"
+          >
+            {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+          </button>
+          <button
+            className="text-muted-foreground hover:text-foreground"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -124,6 +144,14 @@ export function Navbar() {
                 </a>
               ))}
               <div className="h-[1px] w-full bg-border my-2" />
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="text-xl font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-3"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </button>
               <a
                 href="/api/portfolio/resume"
                 target="_blank"

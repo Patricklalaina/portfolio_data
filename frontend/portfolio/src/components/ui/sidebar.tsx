@@ -21,7 +21,8 @@ import {
 } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { cva, VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
+import type { VariantProps } from 'class-variance-authority';
 import { PanelLeftIcon } from 'lucide-react';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state';

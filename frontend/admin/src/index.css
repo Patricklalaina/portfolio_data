@@ -36,6 +36,12 @@
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
 
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
   --color-sidebar: hsl(var(--sidebar));
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
@@ -53,8 +59,65 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* Portfolio-matching dark theme with muted amber accent */
+/* Light theme — crisp, high-contrast, matches the amber/mono identity of the portfolio */
 :root {
+  color-scheme: light;
+
+  --background: 40 20% 98%;
+  --foreground: 240 10% 12%;
+  --border: 240 12% 88%;
+  --input: 240 12% 85%;
+  --ring: 38 75% 32%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 12%;
+  --card-border: 240 12% 88%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 12%;
+  --popover-border: 240 12% 88%;
+
+  /* Darkened amber — keeps the brand hue while meeting text contrast on white */
+  --primary: 38 75% 32%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 240 15% 94%;
+  --secondary-foreground: 240 10% 15%;
+
+  --muted: 240 15% 95%;
+  --muted-foreground: 240 8% 40%;
+
+  --accent: 240 15% 93%;
+  --accent-foreground: 240 10% 15%;
+
+  --destructive: 0 72% 42%;
+  --destructive-foreground: 0 0% 100%;
+
+  --chart-1: 38 75% 32%;
+  --chart-2: 200 45% 35%;
+  --chart-3: 150 35% 30%;
+  --chart-4: 300 30% 38%;
+  --chart-5: 0 45% 42%;
+
+  /* Sidebar — subtly distinct from body */
+  --sidebar: 40 25% 96%;
+  --sidebar-foreground: 240 10% 20%;
+  --sidebar-border: 240 12% 88%;
+  --sidebar-primary: 38 75% 32%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 15% 91%;
+  --sidebar-accent-foreground: 240 10% 15%;
+  --sidebar-ring: 38 75% 32%;
+
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-mono: 'JetBrains Mono', monospace;
+
+  /* Sharp corners matching portfolio aesthetic */
+  --radius: 0.25rem;
+}
+
+/* Portfolio-matching dark theme with muted amber accent */
+.dark {
   color-scheme: dark;
 
   /* Deep near-black background — matches portfolio #0A0A0B */
@@ -88,53 +151,11 @@
   --destructive: 0 60% 50%;
   --destructive-foreground: 0 0% 98%;
 
-  /* Sidebar — slightly darker than body */
-  --sidebar: 240 6% 3%;
-  --sidebar-foreground: 240 5% 80%;
-  --sidebar-border: 240 4% 10%;
-  --sidebar-primary: 38 60% 55%;
-  --sidebar-primary-foreground: 0 0% 0%;
-  --sidebar-accent: 240 5% 9%;
-  --sidebar-accent-foreground: 240 5% 90%;
-  --sidebar-ring: 38 60% 55%;
-
-  --app-font-sans: 'Inter', sans-serif;
-  --app-font-mono: 'JetBrains Mono', monospace;
-
-  /* Sharp corners matching portfolio aesthetic */
-  --radius: 0.25rem;
-}
-
-/* Dark variant is identical — admin is dark-only like the portfolio */
-.dark {
-  --background: 240 5% 4%;
-  --foreground: 240 5% 85%;
-  --border: 240 4% 12%;
-  --input: 240 4% 15%;
-  --ring: 38 60% 55%;
-
-  --card: 240 6% 6%;
-  --card-foreground: 240 5% 85%;
-  --card-border: 240 4% 12%;
-
-  --popover: 240 6% 6%;
-  --popover-foreground: 240 5% 85%;
-  --popover-border: 240 4% 12%;
-
-  --primary: 38 60% 55%;
-  --primary-foreground: 0 0% 0%;
-
-  --secondary: 240 4% 12%;
-  --secondary-foreground: 240 5% 85%;
-
-  --muted: 240 4% 10%;
-  --muted-foreground: 240 5% 60%;
-
-  --accent: 240 4% 12%;
-  --accent-foreground: 240 5% 85%;
-
-  --destructive: 0 60% 50%;
-  --destructive-foreground: 0 0% 98%;
+  --chart-1: 38 60% 55%;
+  --chart-2: 200 20% 50%;
+  --chart-3: 150 20% 40%;
+  --chart-4: 300 20% 40%;
+  --chart-5: 0 20% 50%;
 
   --sidebar: 240 6% 3%;
   --sidebar-foreground: 240 5% 80%;

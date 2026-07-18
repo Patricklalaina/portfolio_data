@@ -70,6 +70,93 @@
 }
 
 :root {
+  color-scheme: light;
+  --button-outline: rgba(0, 0, 0, 0.08);
+  --badge-outline: rgba(0, 0, 0, 0.05);
+
+  --opaque-button-border-intensity: 9;
+  --elevate-1: rgba(0, 0, 0, 0.03);
+  --elevate-2: rgba(0, 0, 0, 0.06);
+
+  /* Warm off-white background */
+  --background: 40 20% 98%;
+  /* Dark slate foreground for strong readability */
+  --foreground: 240 10% 12%;
+  /* Soft but visible borders */
+  --border: 240 12% 88%;
+
+  /* Crisp white cards, lifted off the warm background */
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 12%;
+  --card-border: 240 12% 88%;
+
+  --sidebar: 40 25% 96%;
+  --sidebar-foreground: 240 10% 20%;
+  --sidebar-border: 240 12% 88%;
+  --sidebar-primary: 38 75% 32%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 15% 91%;
+  --sidebar-accent-foreground: 240 10% 15%;
+  --sidebar-ring: 38 75% 32%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 12%;
+  --popover-border: 240 12% 88%;
+
+  /* Darkened amber — keeps the brand hue while meeting text contrast on white */
+  --primary: 38 75% 32%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 240 15% 94%;
+  --secondary-foreground: 240 10% 15%;
+
+  --muted: 240 15% 95%;
+  --muted-foreground: 240 8% 40%;
+
+  --accent: 240 15% 93%;
+  --accent-foreground: 240 10% 15%;
+
+  --destructive: 0 72% 42%;
+  --destructive-foreground: 0 0% 100%;
+
+  --input: 240 12% 85%;
+  --ring: 38 75% 32%;
+
+  --chart-1: 38 75% 32%;
+  --chart-2: 200 45% 35%;
+  --chart-3: 150 35% 30%;
+  --chart-4: 300 30% 38%;
+  --chart-5: 0 45% 42%;
+
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-serif: Georgia, serif;
+  --app-font-mono: 'JetBrains Mono', monospace;
+  --radius: 0.25rem;
+  
+  --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm:
+    0px 2px 0px 0px hsl(0 0% 0% / 0.05),
+    0px 1px 2px -1px hsl(0 0% 0% / 0.05);
+  --shadow:
+    0px 2px 0px 0px hsl(0 0% 0% / 0.05),
+    0px 1px 2px -1px hsl(0 0% 0% / 0.05);
+  --shadow-md:
+    0px 2px 0px 0px hsl(0 0% 0% / 0.05),
+    0px 2px 4px -1px hsl(0 0% 0% / 0.05);
+  --shadow-lg:
+    0px 2px 0px 0px hsl(0 0% 0% / 0.05),
+    0px 4px 6px -1px hsl(0 0% 0% / 0.05);
+  --shadow-xl:
+    0px 2px 0px 0px hsl(0 0% 0% / 0.05),
+    0px 8px 10px -1px hsl(0 0% 0% / 0.05);
+  --shadow-2xl: 0px 2px 0px 0px hsl(0 0% 0% / 0.05);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+}
+
+/* Portfolio-matching dark theme with muted amber accent */
+.dark {
   color-scheme: dark;
   --button-outline: rgba(255, 255, 255, 0.1);
   --badge-outline: rgba(255, 255, 255, 0.05);
@@ -128,11 +215,6 @@
   --chart-4: 300 20% 40%;
   --chart-5: 0 20% 50%;
 
-  --app-font-sans: 'Inter', sans-serif;
-  --app-font-serif: Georgia, serif;
-  --app-font-mono: 'JetBrains Mono', monospace;
-  --radius: 0.25rem;
-  
   --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.1);
   --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.1);
   --shadow-sm:
@@ -151,13 +233,6 @@
     0px 2px 0px 0px hsl(0 0% 0% / 0.1),
     0px 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0px 2px 0px 0px hsl(0 0% 0% / 0.1);
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
-}
-
-/* Force dark mode */
-.dark {
-  /* No need to redefine, :root is already dark */
 }
 
 @layer base {
