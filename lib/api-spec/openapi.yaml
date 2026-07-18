@@ -1,0 +1,628 @@
+openapi: 3.1.0
+info:
+  # Do not change the title — controls generated filenames
+  title: Api
+  version: 0.1.0
+  description: Portfolio API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: portfolio
+    description: Portfolio content endpoints
+  - name: admin
+    description: Admin panel endpoints (JWT-protected)
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    ApiError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    # ─── Profile ───────────────────────────────────────────────────────────────
+
+    SocialLinks:
+      type: object
+      required: [github, linkedin, twitter]
+      properties:
+        github:
+          type: string
+        linkedin:
+          type: string
+        twitter:
+          type: string
+
+    StatItem:
+      type: object
+      required: [iconKey, label]
+      properties:
+        iconKey:
+          type: string
+        label:
+          type: string
+
+    Profile:
+      type: object
+      required:
+        - name
+        - initials
+        - role
+        - tagline
+        - bio
+        - location
+        - availableForWork
+        - email
+        - phone
+        - resumeUrl
+        - socialLinks
+        - stats
+      properties:
+        name:
+          type: string
+        initials:
+          type: string
+        role:
+          type: string
+        tagline:
+          type: string
+        bio:
+          type: string
+        location:
+          type: string
+        availableForWork:
+          type: boolean
+        email:
+          type: string
+        phone:
+          type: string
+        resumeUrl:
+          type: string
+        socialLinks:
+          $ref: "#/components/schemas/SocialLinks"
+        stats:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatItem"
+
+    # ─── Experience ────────────────────────────────────────────────────────────
+
+    ExperienceEntry:
+      type: object
+      required: [id, role, company, dateRange, employmentType, description, tech]
+      properties:
+        id:
+          type: integer
+        role:
+          type: string
+        company:
+          type: string
+        dateRange:
+          type: string
+        employmentType:
+          type: string
+        description:
+          type: string
+        tech:
+          type: array
+          items:
+            type: string
+
+    # ─── Certifications ────────────────────────────────────────────────────────
+
+    Certification:
+      type: object
+      required: [id, name, org, date, credentialId, iconKey]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        org:
+          type: string
+        date:
+          type: string
+        credentialId:
+          type: string
+        iconKey:
+          type: string
+
+    # ─── Skills ────────────────────────────────────────────────────────────────
+
+    SkillItem:
+      type: object
+      required: [name, level]
+      properties:
+        name:
+          type: string
+        level:
+          type: integer
+
+    SkillCategory:
+      type: object
+      required: [title, iconKey, skills]
+      properties:
+        title:
+          type: string
+        iconKey:
+          type: string
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/SkillItem"
+
+    SkillsData:
+      type: object
+      required: [categories, secondary]
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/SkillCategory"
+        secondary:
+          type: array
+          items:
+            type: string
+
+    # ─── Projects ──────────────────────────────────────────────────────────────
+
+    Project:
+      type: object
+      required: [id, name, description, tech, stars, liveUrl, githubUrl, iconKey, colorKey]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        tech:
+          type: array
+          items:
+            type: string
+        stars:
+          type: integer
+        liveUrl:
+          type: string
+        githubUrl:
+          type: string
+        iconKey:
+          type: string
+        colorKey:
+          type: string
+
+    # ─── Education ─────────────────────────────────────────────────────────────
+
+    EducationEntry:
+      type: object
+      required: [id, degree, institution, dateRange, focus, iconKey]
+      properties:
+        id:
+          type: integer
+        degree:
+          type: string
+        institution:
+          type: string
+        dateRange:
+          type: string
+        focus:
+          type: string
+        iconKey:
+          type: string
+
+    # ─── Contact ───────────────────────────────────────────────────────────────
+
+    ContactInput:
+      type: object
+      required: [name, email, message]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+        message:
+          type: string
+          minLength: 1
+
+    ContactResult:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+
+    # ─── Admin ─────────────────────────────────────────────────────────────────
+
+    AdminLoginInput:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    AdminToken:
+      type: object
+      required: [token, expiresAt]
+      properties:
+        token:
+          type: string
+        expiresAt:
+          type: string
+
+    AdminStats:
+      type: object
+      required: [totalMessages, lastMessageAt, sections]
+      properties:
+        totalMessages:
+          type: integer
+        lastMessageAt:
+          type: ["string", "null"]
+        sections:
+          type: array
+          items:
+            type: object
+            required: [section, updatedAt]
+            properties:
+              section:
+                type: string
+              updatedAt:
+                type: string
+
+    AdminSectionData:
+      type: object
+      required: [section, data, updatedAt]
+      properties:
+        section:
+          type: string
+        data: {}
+        updatedAt:
+          type: string
+
+    AdminSectionUpdate:
+      type: object
+      required: [data]
+      properties:
+        data: {}
+
+    ContactMessage:
+      type: object
+      required: [id, name, email, message, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        message:
+          type: string
+        createdAt:
+          type: string
+
+    DeleteResult:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Public portfolio endpoints ────────────────────────────────────────────
+
+  /portfolio/profile:
+    get:
+      operationId: getProfile
+      tags: [portfolio]
+      summary: Get portfolio profile
+      responses:
+        "200":
+          description: Profile data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+
+  /portfolio/experience:
+    get:
+      operationId: listExperience
+      tags: [portfolio]
+      summary: List work experience entries
+      responses:
+        "200":
+          description: Experience list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExperienceEntry"
+
+  /portfolio/certifications:
+    get:
+      operationId: listCertifications
+      tags: [portfolio]
+      summary: List certifications
+      responses:
+        "200":
+          description: Certifications list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Certification"
+
+  /portfolio/skills:
+    get:
+      operationId: getSkills
+      tags: [portfolio]
+      summary: Get skills data
+      responses:
+        "200":
+          description: Skills data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkillsData"
+
+  /portfolio/projects:
+    get:
+      operationId: listProjects
+      tags: [portfolio]
+      summary: List featured projects
+      responses:
+        "200":
+          description: Projects list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+
+  /portfolio/education:
+    get:
+      operationId: listEducation
+      tags: [portfolio]
+      summary: List education entries
+      responses:
+        "200":
+          description: Education list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EducationEntry"
+
+  /portfolio/contact:
+    post:
+      operationId: sendContactMessage
+      tags: [portfolio]
+      summary: Submit a contact form message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactInput"
+      responses:
+        "200":
+          description: Message received
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactResult"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  # ─── Admin endpoints (JWT-protected) ──────────────────────────────────────
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login — returns a JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminToken"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Admin dashboard stats
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /admin/sections/{section}:
+    get:
+      operationId: getAdminSection
+      tags: [admin]
+      summary: Get a portfolio section's raw data
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: section
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Section data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSectionData"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Section not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    put:
+      operationId: updateAdminSection
+      tags: [admin]
+      summary: Update a portfolio section's data
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: section
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminSectionUpdate"
+      responses:
+        "200":
+          description: Updated section data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSectionData"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Section not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /admin/messages:
+    get:
+      operationId: listAdminMessages
+      tags: [admin]
+      summary: List all contact form submissions
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Messages list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContactMessage"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /admin/messages/{id}:
+    delete:
+      operationId: deleteAdminMessage
+      tags: [admin]
+      summary: Delete a contact form submission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResult"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
