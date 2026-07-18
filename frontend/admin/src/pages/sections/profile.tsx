@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { IconPicker } from "@/components/ui/icon-picker";
 import { Loader2, Save, Plus, Trash2 } from "lucide-react";
 
 export default function ProfileSection() {
@@ -132,8 +133,11 @@ export default function ProfileSection() {
               {statFields.map((field, index) => (
                 <div key={field.id} className="flex items-end gap-4 p-4 border rounded-md bg-muted/20">
                   <div className="flex-1 space-y-2">
-                    <Label className="text-xs">Icon Key (Lucide)</Label>
-                    <Input {...form.register(`stats.${index}.iconKey` as const)} placeholder="e.g. Code2" />
+                    <Label className="text-xs">Icon</Label>
+                    <IconPicker
+                      value={form.watch(`stats.${index}.iconKey` as const)}
+                      onChange={(value) => form.setValue(`stats.${index}.iconKey` as const, value, { shouldDirty: true })}
+                    />
                   </div>
                   <div className="flex-1 space-y-2">
                     <Label className="text-xs">Label</Label>
@@ -144,7 +148,7 @@ export default function ProfileSection() {
                   </Button>
                 </div>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => appendStat({ iconKey: "", label: "" })} className="w-full font-mono text-xs">
+              <Button type="button" variant="outline" size="sm" onClick={() => appendStat({ iconKey: "star", label: "" })} className="w-full font-mono text-xs">
                 <Plus className="w-4 h-4 mr-2" /> Add Stat
               </Button>
             </CardContent>

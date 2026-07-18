@@ -1,12 +1,16 @@
 import { motion } from "framer-motion";
-import { Star, ExternalLink, Github, Terminal, Globe, Shield, Code2, Zap } from "lucide-react";
+import { Star, ExternalLink, Github, Globe } from "lucide-react";
+import { DynamicIcon, iconNames, type IconName } from "lucide-react/dynamic";
 import { useListProjects } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import React from "react";
 
-const PROJ_ICONS: Record<string, React.ElementType> = {
-  shield: Shield, globe: Globe, terminal: Terminal, code: Code2, zap: Zap,
-};
+function ProjectIcon({ iconKey, className }: { iconKey: string; className?: string }) {
+  if ((iconNames as readonly string[]).includes(iconKey)) {
+    return <DynamicIcon name={iconKey as IconName} className={className} />;
+  }
+  return <Globe className={className} />;
+}
 
 const PROJ_COLORS: Record<string, string> = {
   blue: "bg-blue-900/20 text-blue-500",
@@ -63,7 +67,6 @@ export function Projects() {
             ))
           ) : (
             sorted.map((project, index) => {
-              const Icon = PROJ_ICONS[project.iconKey] ?? Globe;
               const colorClass = PROJ_COLORS[project.colorKey] ?? "bg-muted text-foreground";
               return (
                 <motion.div
@@ -74,15 +77,26 @@ export function Projects() {
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                   className="flex flex-col bg-background border border-border group hover:border-primary/50 transition-colors h-full"
                 >
-                  {/* Image Area Placeholder */}
-                  <div className="h-48 border-b border-border bg-muted/30 relative flex items-center justify-center p-6 overflow-hidden">
-                    {/* Subtle pattern */}
-                    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), repeating-linear-gradient(45deg, #000 25%, #fff 25%, #fff 75%, #000 75%, #000)', backgroundPosition: '0 0, 10px 10px', backgroundSize: '20px 20px' }} />
-                    
-                    <h3 className="text-3xl font-bold text-muted-foreground/20 uppercase tracking-widest whitespace-nowrap overflow-hidden text-ellipsis w-full text-center relative z-10">
-                      {project.name}
-                    </h3>
-                    
+                  {/* Image / Placeholder Area */}
+                  <div className="h-48 border-b border-border bg-muted/30 relative flex items-center justify-center overflow-hidden">
+                    {project.imageUrl ? (
+                      <img
+                        src={project.imageUrl}
+                        alt={`${project.name} preview`}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <>
+                        {/* Subtle pattern */}
+                        <div className="absolute inset-0 p-6 opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), repeating-linear-gradient(45deg, #000 25%, #fff 25%, #fff 75%, #000 75%, #000)', backgroundPosition: '0 0, 10px 10px', backgroundSize: '20px 20px' }} />
+
+                        <h3 className="text-3xl font-bold text-muted-foreground/20 uppercase tracking-widest whitespace-nowrap overflow-hidden text-ellipsis w-full text-center relative z-10 px-6">
+                          {project.name}
+                        </h3>
+                      </>
+                    )}
+
                     <div className="absolute top-4 right-4 bg-background border border-border px-2 py-1 flex items-center gap-1.5 z-20">
                       <Star className="w-3 h-3 text-muted-foreground" />
                       <span className="text-xs font-mono text-muted-foreground">{project.stars}</span>
@@ -92,7 +106,7 @@ export function Projects() {
                   <div className="p-6 flex flex-col flex-grow">
                     <div className="flex items-center gap-3 mb-3">
                       <div className={`p-1.5 rounded-sm ${colorClass}`}>
-                        <Icon className="w-4 h-4" />
+                        <ProjectIcon iconKey={project.iconKey} className="w-4 h-4" />
                       </div>
                       <h4 className="font-bold text-lg">{project.name}</h4>
                     </div>

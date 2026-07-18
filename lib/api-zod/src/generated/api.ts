@@ -99,7 +99,8 @@ export const ListProjectsResponseItem = zod.object({
   "liveUrl": zod.string(),
   "githubUrl": zod.string(),
   "iconKey": zod.string(),
-  "colorKey": zod.string()
+  "colorKey": zod.string(),
+  "imageUrl": zod.string().nullish().describe('Optional preview screenshot\/illustration, stored as a data URL or external link.')
 })
 export const ListProjectsResponse = zod.array(ListProjectsResponseItem)
 
@@ -113,7 +114,6 @@ export const ListEducationResponseItem = zod.object({
   "institution": zod.string(),
   "dateRange": zod.string(),
   "focus": zod.string(),
-  "gpa": zod.string(),
   "iconKey": zod.string()
 })
 export const ListEducationResponse = zod.array(ListEducationResponseItem)

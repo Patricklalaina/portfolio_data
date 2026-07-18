@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
-import { Monitor, Server, Wrench } from "lucide-react";
+import { Wrench } from "lucide-react";
+import { DynamicIcon, iconNames, type IconName } from "lucide-react/dynamic";
 import { useGetSkills } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import React from "react";
 
-const SKILL_ICONS: Record<string, React.ElementType> = {
-  monitor: Monitor, server: Server, wrench: Wrench,
-};
+function CategoryIcon({ iconKey, className }: { iconKey: string; className?: string }) {
+  if ((iconNames as readonly string[]).includes(iconKey)) {
+    return <DynamicIcon name={iconKey as IconName} className={className} />;
+  }
+  return <Wrench className={className} />;
+}
 
 export function Skills() {
   const { data, isLoading } = useGetSkills();
@@ -44,7 +47,6 @@ export function Skills() {
             ))
           ) : (
             (Array.isArray(data?.categories) ? data!.categories : []).map((category, idx) => {
-              const Icon = SKILL_ICONS[category.iconKey] ?? Wrench;
               return (
                 <motion.div 
                   key={category.title}
@@ -55,7 +57,7 @@ export function Skills() {
                   className="border border-border bg-card/30 p-6"
                 >
                   <div className="flex items-center gap-3 mb-8 pb-4 border-b border-border/50">
-                    <Icon className="w-5 h-5 text-primary" />
+                    <CategoryIcon iconKey={category.iconKey} className="w-5 h-5 text-primary" />
                     <h3 className="font-bold">{category.title}</h3>
                   </div>
 

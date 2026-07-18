@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { IconPicker } from "@/components/ui/icon-picker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 type EducationEntry = {
@@ -55,7 +56,7 @@ export default function EducationSection() {
       dateRange: "",
       focus: "",
       gpa: "",
-      iconKey: "GraduationCap"
+      iconKey: "graduation-cap"
     });
     setIsDialogOpen(true);
   };
@@ -182,8 +183,11 @@ export default function EducationSection() {
                   <Input value={editingItem.focus} onChange={e => setEditingItem({...editingItem, focus: e.target.value})} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Icon Key</Label>
-                  <Input value={editingItem.iconKey} onChange={e => setEditingItem({...editingItem, iconKey: e.target.value})} />
+                  <Label>Icon</Label>
+                  <IconPicker
+                    value={editingItem.iconKey}
+                    onChange={(value) => setEditingItem({...editingItem, iconKey: value})}
+                  />
                 </div>
               </div>
             </div>

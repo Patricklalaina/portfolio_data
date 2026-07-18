@@ -1,12 +1,16 @@
 import { motion } from "framer-motion";
-import { GraduationCap, Library, BookOpen } from "lucide-react";
+import { GraduationCap } from "lucide-react";
+import { DynamicIcon, iconNames, type IconName } from "lucide-react/dynamic";
 import { useListEducation } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import React from "react";
 
-const EDU_ICONS: Record<string, React.ElementType> = {
-  "graduation-cap": GraduationCap, library: Library, "book-open": BookOpen,
-};
+function EduIcon({ iconKey, className }: { iconKey: string; className?: string }) {
+  if ((iconNames as readonly string[]).includes(iconKey)) {
+    return <DynamicIcon name={iconKey as IconName} className={className} />;
+  }
+  return <GraduationCap className={className} />;
+}
 
 function parseEndYear(dateRange: string | undefined): number {
   if (!dateRange) return 0;
@@ -51,7 +55,6 @@ export function Education() {
             ))
           ) : (
             sorted.map((edu, i) => {
-              const Icon = EDU_ICONS[edu.iconKey] ?? GraduationCap;
               return (
                 <motion.div
                   key={edu.id}
@@ -61,7 +64,7 @@ export function Education() {
                   className="border border-border bg-card/30 p-8 flex flex-col items-start hover:border-primary/30 transition-colors"
                 >
                   <div className="w-12 h-12 border border-border bg-background flex items-center justify-center mb-6">
-                    <Icon className="w-6 h-6 text-primary" />
+                    <EduIcon iconKey={edu.iconKey} className="w-6 h-6 text-primary" />
                   </div>
                   
                   <h3 className="text-xl font-bold mb-1">{edu.degree}</h3>

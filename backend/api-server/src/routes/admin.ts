@@ -1,7 +1,8 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
+import { randomUUID } from "crypto";
 import { sql, desc, eq } from "drizzle-orm";
-import { db, portfolioSections, contactMessages, resumeFile } from "@workspace/db";
+import { db, portfolioSections, contactMessages, resumeFile, projectImages } from "@workspace/db";
 import { requireAdmin } from "../lib/auth.js";
 import {
   AdminLoginBody,
@@ -28,6 +29,23 @@ const upload = multer({
     else cb(new Error("Only PDF files are allowed"));
   },
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+});
+
+// ─── Multer: project preview images (screenshots / illustrations) ──────────────
+const ALLOWED_IMAGE_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/gif",
+  "image/svg+xml",
+]);
+const uploadImage = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_IMAGE_TYPES.has(file.mimetype)) cb(null, true);
+    else cb(new Error("Only PNG, JPEG, WEBP, GIF, or SVG images are allowed"));
+  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
 });
 
 const VALID_SECTIONS = [
@@ -267,6 +285,56 @@ router.delete("/admin/resume", requireAdmin, async (_req, res) => {
 
   if (result.length === 0) {
     res.status(404).json({ error: "No resume to delete" });
+    return;
+  }
+  res.json({ success: true });
+});
+
+// ─── Project preview images (stored in DB as base64) ───────────────────────────
+
+// POST /api/admin/project-images
+router.post("/admin/project-images", requireAdmin, (req, res) => {
+  uploadImage.single("image")(req, res, async (err) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    if (!req.file) {
+      res.status(400).json({ error: "No file uploaded" });
+      return;
+    }
+
+    const id = randomUUID();
+    const content = req.file.buffer.toString("base64");
+    const now = new Date();
+
+    await db.insert(projectImages).values({
+      id,
+      content,
+      contentType: req.file.mimetype,
+      size: req.file.size,
+      uploadedAt: now,
+    });
+
+    res.json({
+      id,
+      url: `/api/portfolio/project-images/${id}`,
+      size: req.file.size,
+      uploadedAt: now.toISOString(),
+    });
+  });
+});
+
+// DELETE /api/admin/project-images/:id
+router.delete("/admin/project-images/:id", requireAdmin, async (req, res) => {
+  const id = String(req.params.id);
+  const result = await db
+    .delete(projectImages)
+    .where(eq(projectImages.id, id))
+    .returning({ id: projectImages.id });
+
+  if (result.length === 0) {
+    res.status(404).json({ error: "Image not found" });
     return;
   }
   res.json({ success: true });

@@ -16,4 +16,6 @@ export interface Project {
   githubUrl: string;
   iconKey: string;
   colorKey: string;
+  /** Optional preview screenshot/illustration, stored as a data URL or external link. */
+  imageUrl?: string | null;
 }

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { eq } from "drizzle-orm";
-import { db, portfolioSections, contactMessages, resumeFile } from "@workspace/db";
+import { db, portfolioSections, contactMessages, resumeFile, projectImages } from "@workspace/db";
 import { SendContactMessageBody } from "@workspace/api-zod";
 import {
   profile,
@@ -71,6 +71,24 @@ router.get("/portfolio/resume", async (_req, res) => {
   const buffer = Buffer.from(rows[0].content, "base64");
   res.set("Content-Type", "application/pdf");
   res.set("Content-Disposition", 'attachment; filename="resume.pdf"');
+  res.set("Content-Length", String(buffer.length));
+  res.send(buffer);
+});
+
+// GET /api/portfolio/project-images/:id — serves an uploaded project screenshot
+router.get("/portfolio/project-images/:id", async (req, res) => {
+  const id = String(req.params.id);
+  const rows = await db
+    .select()
+    .from(projectImages)
+    .where(eq(projectImages.id, id));
+  if (rows.length === 0) {
+    res.status(404).json({ error: "Image not found" });
+    return;
+  }
+  const buffer = Buffer.from(rows[0].content, "base64");
+  res.set("Content-Type", rows[0].contentType);
+  res.set("Cache-Control", "public, max-age=31536000, immutable");
   res.set("Content-Length", String(buffer.length));
   res.send(buffer);
 });

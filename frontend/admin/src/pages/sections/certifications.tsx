@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { IconPicker } from "@/components/ui/icon-picker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 type Certification = {
@@ -53,7 +54,7 @@ export default function CertificationsSection() {
       org: "",
       date: "",
       credentialId: "",
-      iconKey: "Award"
+      iconKey: "award"
     });
     setIsDialogOpen(true);
   };
@@ -165,8 +166,11 @@ export default function CertificationsSection() {
                   <Input value={editingItem.credentialId} onChange={e => setEditingItem({...editingItem, credentialId: e.target.value})} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Icon Key (Lucide)</Label>
-                  <Input value={editingItem.iconKey} onChange={e => setEditingItem({...editingItem, iconKey: e.target.value})} />
+                  <Label>Icon</Label>
+                  <IconPicker
+                    value={editingItem.iconKey}
+                    onChange={(value) => setEditingItem({...editingItem, iconKey: value})}
+                  />
                 </div>
               </div>
             </div>

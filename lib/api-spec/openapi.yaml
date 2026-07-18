@@ -207,6 +207,10 @@ components:
           type: string
         colorKey:
           type: string
+        imageUrl:
+          type: string
+          nullable: true
+          description: Optional preview screenshot/illustration, stored as a data URL or external link.
 
     # ─── Education ─────────────────────────────────────────────────────────────
 

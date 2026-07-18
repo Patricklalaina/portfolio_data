@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { useGetAdminSection, useUpdateAdminSection, getGetAdminSectionQueryKey } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, Code2, Save, Loader2 } from "lucide-react";
+import { Plus, Trash2, Save, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { IconPicker } from "@/components/ui/icon-picker";
 
 type SkillItem = {
   name: string;
@@ -69,7 +70,7 @@ export default function SkillsSection() {
       ...formData,
       categories: [
         ...formData.categories,
-        { title: "New Category", iconKey: "Code2", skills: [] }
+        { title: "New Category", iconKey: "code", skills: [] }
       ]
     });
   };
@@ -152,8 +153,11 @@ export default function SkillsSection() {
                     <Input value={category.title} onChange={e => updateCategory(catIndex, "title", e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs font-mono uppercase text-muted-foreground">Icon Key</Label>
-                    <Input value={category.iconKey} onChange={e => updateCategory(catIndex, "iconKey", e.target.value)} />
+                    <Label className="text-xs font-mono uppercase text-muted-foreground">Icon</Label>
+                    <IconPicker
+                      value={category.iconKey}
+                      onChange={(value) => updateCategory(catIndex, "iconKey", value)}
+                    />
                   </div>
                 </div>
 

@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useGetAdminSection, useUpdateAdminSection, getGetAdminSectionQueryKey } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
-import { useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, GripVertical, Star, Link as LinkIcon, Github } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Plus, Pencil, Trash2, Star, Link as LinkIcon, Github, ImagePlus, ImageOff, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { IconPicker } from "@/components/ui/icon-picker";
+
+async function authFetch(url: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('admin_token');
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+}
 
 type Project = {
   id: number;
@@ -21,6 +33,7 @@ type Project = {
   githubUrl: string;
   iconKey: string;
   colorKey: string;
+  imageUrl?: string | null;
 };
 
 export default function ProjectsSection() {
@@ -34,6 +47,44 @@ export default function ProjectsSection() {
   const [editingItem, setEditingItem] = useState<Project | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [techInput, setTechInput] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const imageUploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await authFetch("/api/admin/project-images", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Upload failed" }));
+        throw new Error(err.error || "Upload failed");
+      }
+      return res.json() as Promise<{ id: string; url: string }>;
+    },
+    onSuccess: (result) => {
+      setEditingItem((prev) => (prev ? { ...prev, imageUrl: result.url } : prev));
+    },
+    onError: (err: Error) => {
+      toast({ title: "Image upload failed", description: err.message, variant: "destructive" });
+    },
+  });
+
+  function handleImageFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Invalid file", description: "Please choose an image file.", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Image too large", description: "Max size is 5 MB.", variant: "destructive" });
+      return;
+    }
+    imageUploadMutation.mutate(file);
+  }
 
   const handleSave = (newEntries: Project[]) => {
     updateMutation.mutate(
@@ -60,8 +111,9 @@ export default function ProjectsSection() {
       stars: 0,
       liveUrl: "",
       githubUrl: "",
-      iconKey: "Folder",
-      colorKey: "blue"
+      iconKey: "folder",
+      colorKey: "blue",
+      imageUrl: null
     });
     setTechInput("");
     setIsDialogOpen(true);
@@ -131,6 +183,11 @@ export default function ProjectsSection() {
                 </Button>
               </div>
               
+              {entry.imageUrl && (
+                <div className="h-32 w-full overflow-hidden border-b">
+                  <img src={entry.imageUrl} alt={`${entry.name} preview`} className="w-full h-full object-cover" />
+                </div>
+              )}
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
                   <h3 className="font-semibold text-xl leading-tight pr-12">{entry.name}</h3>
@@ -212,10 +269,66 @@ export default function ProjectsSection() {
                   <Input value={editingItem.githubUrl} placeholder="https://github.com/..." onChange={e => setEditingItem({...editingItem, githubUrl: e.target.value})} />
                 </div>
               </div>
+              <div className="space-y-2">
+                <Label>Preview Image (optional)</Label>
+                <div
+                  className={`relative border-2 border-dashed rounded-lg transition-colors ${
+                    isDragging ? 'border-primary bg-accent/40' : 'border-border hover:border-primary/50'
+                  } ${editingItem.imageUrl ? 'p-0 overflow-hidden' : 'p-6 text-center cursor-pointer hover:bg-accent/20'}`}
+                  onClick={() => !editingItem.imageUrl && fileInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    handleImageFiles(e.dataTransfer.files);
+                  }}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                    className="hidden"
+                    onChange={(e) => handleImageFiles(e.target.files)}
+                  />
+                  {imageUploadMutation.isPending ? (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground py-4">
+                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                      <p className="text-xs font-mono">Uploading…</p>
+                    </div>
+                  ) : editingItem.imageUrl ? (
+                    <div className="relative group">
+                      <img src={editingItem.imageUrl} alt="Preview" className="w-full h-40 object-cover" />
+                      <div className="absolute inset-0 bg-background/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                          <ImagePlus className="w-3.5 h-3.5 mr-1.5" /> Replace
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => setEditingItem({ ...editingItem, imageUrl: null })}
+                        >
+                          <ImageOff className="w-3.5 h-3.5 mr-1.5" /> Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground py-2">
+                      <ImagePlus className="w-7 h-7 text-muted-foreground/40" />
+                      <p className="text-xs font-medium text-foreground">Drop a screenshot here or click to browse</p>
+                      <p className="text-[10px] font-mono">PNG, JPEG, WEBP, GIF, or SVG · max 5 MB</p>
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Icon Key</Label>
-                  <Input value={editingItem.iconKey} onChange={e => setEditingItem({...editingItem, iconKey: e.target.value})} />
+                  <Label>Icon</Label>
+                  <IconPicker
+                    value={editingItem.iconKey}
+                    onChange={(value) => setEditingItem({...editingItem, iconKey: value})}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Color Key</Label>

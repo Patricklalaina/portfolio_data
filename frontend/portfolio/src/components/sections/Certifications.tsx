@@ -1,13 +1,16 @@
 import { motion } from "framer-motion";
-import { CheckCircle2, Shield, Cloud, Server, Database, Lock, Box, Terminal, Monitor } from "lucide-react";
+import { CheckCircle2, Cloud } from "lucide-react";
+import { DynamicIcon, iconNames, type IconName } from "lucide-react/dynamic";
 import { useListCertifications } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import React from "react";
 
-const CERT_ICONS: Record<string, React.ElementType> = {
-  cloud: Cloud, box: Box, server: Server, database: Database,
-  shield: Shield, lock: Lock, monitor: Monitor, terminal: Terminal,
-};
+function CertIcon({ iconKey, className }: { iconKey: string; className?: string }) {
+  if ((iconNames as readonly string[]).includes(iconKey)) {
+    return <DynamicIcon name={iconKey as IconName} className={className} />;
+  }
+  return <Cloud className={className} />;
+}
 
 function parseCertYear(date: string | undefined): number {
   if (!date) return 0;
@@ -51,7 +54,6 @@ export function Certifications() {
             ))
           ) : (
             sorted.map((cert, index) => {
-              const Icon = CERT_ICONS[cert.iconKey] ?? Cloud;
               return (
                 <motion.div
                   key={cert.id}
@@ -66,7 +68,7 @@ export function Certifications() {
                   </div>
                   
                   <div className="w-10 h-10 border border-border flex items-center justify-center mb-6 group-hover:border-primary/30 transition-colors">
-                    <Icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <CertIcon iconKey={cert.iconKey} className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
                   
                   <h3 className="font-bold text-sm text-foreground mb-1 pr-6">{cert.name}</h3>

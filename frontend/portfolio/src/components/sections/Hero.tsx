@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
-import { ChevronDown, MapPin, Github, Linkedin, Twitter, Star, Award, Briefcase, FileCode } from "lucide-react";
+import { ChevronDown, MapPin, Github, Linkedin, Twitter, Star } from "lucide-react";
+import { DynamicIcon, iconNames, type IconName } from "lucide-react/dynamic";
 import { useGetProfile } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import React from "react";
 
-const STAT_ICONS: Record<string, React.ElementType> = {
-  briefcase: Briefcase, "file-code": FileCode, star: Star, award: Award,
-};
+function StatIcon({ iconKey, className }: { iconKey: string; className?: string }) {
+  if ((iconNames as readonly string[]).includes(iconKey)) {
+    return <DynamicIcon name={iconKey as IconName} className={className} />;
+  }
+  return <Star className={className} />;
+}
 
 export function Hero() {
   const { data: profile, isLoading } = useGetProfile();
@@ -134,10 +137,9 @@ export function Hero() {
               ))
             ) : profile?.stats && (
               profile.stats.map((stat, i) => {
-                const Icon = STAT_ICONS[stat.iconKey] ?? Star;
                 return (
                   <div key={i} className="bg-card border border-border p-4 flex flex-col gap-2 hover:border-primary/30 transition-colors">
-                    <Icon className="w-4 h-4 text-primary" />
+                    <StatIcon iconKey={stat.iconKey} className="w-4 h-4 text-primary" />
                     <span className="text-sm font-mono text-foreground">{stat.label}</span>
                   </div>
                 );
