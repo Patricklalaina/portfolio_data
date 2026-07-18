@@ -18,7 +18,7 @@ pnpm --filter @workspace/api-server run build
 
 echo "==> Assembling static output in public/..."
 mkdir -p public/admin
-cp -r artifacts/portfolio/dist/public/. public/
-cp -r artifacts/admin/dist/public/. public/admin/
+cp -r frontend/portfolio/dist/public/. public/
+cp -r frontend/admin/dist/public/. public/admin/
 
 echo "==> Build complete."
