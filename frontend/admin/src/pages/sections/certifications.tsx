@@ -1,15 +1,27 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useGetAdminSection, useUpdateAdminSection, getGetAdminSectionQueryKey } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
-import { useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, GripVertical } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Plus, Pencil, Trash2, ExternalLink, Eye, ImagePlus, ImageOff, Loader2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconPicker } from "@/components/ui/icon-picker";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+
+async function authFetch(url: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('admin_token');
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+}
 
 type Certification = {
   id: number;
@@ -18,6 +30,8 @@ type Certification = {
   date: string;
   credentialId: string;
   iconKey: string;
+  credentialUrl?: string | null;
+  imageUrl?: string | null;
 };
 
 export default function CertificationsSection() {
@@ -30,6 +44,45 @@ export default function CertificationsSection() {
   
   const [editingItem, setEditingItem] = useState<Certification | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [previewEntry, setPreviewEntry] = useState<Certification | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const imageUploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await authFetch("/api/admin/project-images", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Upload failed" }));
+        throw new Error(err.error || "Upload failed");
+      }
+      return res.json() as Promise<{ id: string; url: string }>;
+    },
+    onSuccess: (result) => {
+      setEditingItem((prev) => (prev ? { ...prev, imageUrl: result.url } : prev));
+    },
+    onError: (err: Error) => {
+      toast({ title: "Image upload failed", description: err.message, variant: "destructive" });
+    },
+  });
+
+  function handleImageFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Invalid file", description: "Please choose an image file.", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Image too large", description: "Max size is 5 MB.", variant: "destructive" });
+      return;
+    }
+    imageUploadMutation.mutate(file);
+  }
 
   const handleSave = (newEntries: Certification[]) => {
     updateMutation.mutate(
@@ -54,7 +107,9 @@ export default function CertificationsSection() {
       org: "",
       date: "",
       credentialId: "",
-      iconKey: "award"
+      iconKey: "award",
+      credentialUrl: "",
+      imageUrl: null,
     });
     setIsDialogOpen(true);
   };
@@ -65,9 +120,7 @@ export default function CertificationsSection() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this certification?")) {
-      handleSave(entries.filter(e => e.id !== id));
-    }
+    handleSave(entries.filter(e => e.id !== id));
   };
 
   const submitDialog = () => {
@@ -110,17 +163,24 @@ export default function CertificationsSection() {
         ) : (
           entries.map((entry) => (
             <Card key={entry.id} className="group overflow-hidden transition-all hover:border-primary/50 relative">
-              <div className="absolute right-4 top-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-card shadow-sm rounded-md border p-1">
+              <div className="absolute right-4 top-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-card shadow-sm rounded-md border p-1 z-10">
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(entry)}>
                   <Pencil className="w-3 h-3" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive-foreground hover:bg-destructive" onClick={() => handleDelete(entry.id)}>
-                  <Trash2 className="w-3 h-3" />
-                </Button>
+                <ConfirmDialog
+                  trigger={
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive-foreground hover:bg-destructive">
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  }
+                  title="Delete this certification?"
+                  description={<>This will permanently remove <strong>{entry.name}</strong> from your portfolio. This action cannot be undone.</>}
+                  onConfirm={() => handleDelete(entry.id)}
+                />
               </div>
               <CardContent className="p-6">
                 <div className="space-y-2">
-                  <h3 className="font-semibold text-lg leading-tight">{entry.name}</h3>
+                  <h3 className="font-semibold text-lg leading-tight pr-16">{entry.name}</h3>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground font-medium">{entry.org}</span>
                     <span className="text-muted-foreground font-mono text-xs">{entry.date}</span>
@@ -132,6 +192,22 @@ export default function CertificationsSection() {
                       </span>
                     </div>
                   )}
+                  {(entry.imageUrl || entry.credentialUrl) && (
+                    <div className="flex items-center gap-2 pt-3">
+                      {entry.imageUrl && (
+                        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setPreviewEntry(entry)}>
+                          <Eye className="w-3.5 h-3.5 mr-1.5" /> View Certificate
+                        </Button>
+                      )}
+                      {entry.credentialUrl && (
+                        <Button variant="outline" size="sm" className="h-7 text-xs" asChild>
+                          <a href={entry.credentialUrl} target="_blank" rel="noreferrer">
+                            <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> Verify
+                          </a>
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -139,8 +215,26 @@ export default function CertificationsSection() {
         )}
       </div>
 
+      {/* Certificate image preview popup */}
+      <Dialog open={!!previewEntry} onOpenChange={(open) => !open && setPreviewEntry(null)}>
+        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle>{previewEntry?.name}</DialogTitle>
+          </DialogHeader>
+          {previewEntry?.imageUrl && (
+            <div className="p-6 pt-4">
+              <img
+                src={previewEntry.imageUrl}
+                alt={`${previewEntry.name} certificate`}
+                className="w-full h-auto max-h-[70vh] object-contain border border-border rounded-md"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingItem?.id && entries.some(e => e.id === editingItem.id) ? "Edit Certification" : "New Certification"}</DialogTitle>
           </DialogHeader>
@@ -171,6 +265,69 @@ export default function CertificationsSection() {
                     value={editingItem.iconKey}
                     onChange={(value) => setEditingItem({...editingItem, iconKey: value})}
                   />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Credential URL (optional)</Label>
+                <Input
+                  type="url"
+                  value={editingItem.credentialUrl ?? ""}
+                  placeholder="https://www.credly.com/badges/…"
+                  onChange={e => setEditingItem({...editingItem, credentialUrl: e.target.value})}
+                />
+                <p className="text-xs text-muted-foreground">Link where visitors can verify this credential — shown as a "Verify" button.</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Certificate Image (optional)</Label>
+                <div
+                  className={`relative border-2 border-dashed rounded-lg transition-colors ${
+                    isDragging ? 'border-primary bg-accent/40' : 'border-border hover:border-primary/50'
+                  } ${editingItem.imageUrl ? 'p-0 overflow-hidden' : 'p-6 text-center cursor-pointer hover:bg-accent/20'}`}
+                  onClick={() => !editingItem.imageUrl && fileInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    handleImageFiles(e.dataTransfer.files);
+                  }}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                    className="hidden"
+                    onChange={(e) => handleImageFiles(e.target.files)}
+                  />
+                  {imageUploadMutation.isPending ? (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground py-4">
+                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                      <p className="text-xs font-mono">Uploading…</p>
+                    </div>
+                  ) : editingItem.imageUrl ? (
+                    <div className="relative group">
+                      <img src={editingItem.imageUrl} alt="Certificate preview" className="w-full h-40 object-cover" />
+                      <div className="absolute inset-0 bg-background/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                          <ImagePlus className="w-3.5 h-3.5 mr-1.5" /> Replace
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => setEditingItem({ ...editingItem, imageUrl: null })}
+                        >
+                          <ImageOff className="w-3.5 h-3.5 mr-1.5" /> Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground py-2">
+                      <ImagePlus className="w-7 h-7 text-muted-foreground/40" />
+                      <p className="text-xs font-medium text-foreground">Drop a certificate image here or click to browse</p>
+                      <p className="text-[10px] font-mono">PNG, JPEG, WEBP, GIF, or SVG · max 5 MB</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

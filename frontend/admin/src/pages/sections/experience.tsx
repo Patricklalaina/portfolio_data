@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 type ExperienceEntry = {
   id: number;
@@ -72,9 +73,7 @@ export default function ExperienceSection() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this entry?")) {
-      handleSave(entries.filter(e => e.id !== id));
-    }
+    handleSave(entries.filter(e => e.id !== id));
   };
 
   const submitDialog = () => {
@@ -138,9 +137,16 @@ export default function ExperienceSection() {
                     <Button variant="outline" size="sm" onClick={() => openEdit(entry)}>
                       <Pencil className="w-4 h-4 mr-2" /> Edit
                     </Button>
-                    <Button variant="outline" size="icon" className="text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={() => handleDelete(entry.id)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <ConfirmDialog
+                      trigger={
+                        <Button variant="outline" size="icon" className="text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      }
+                      title="Delete this entry?"
+                      description={<>This will permanently remove <strong>{entry.role}</strong> at {entry.company}. This action cannot be undone.</>}
+                      onConfirm={() => handleDelete(entry.id)}
+                    />
                   </div>
                 </div>
               </div>

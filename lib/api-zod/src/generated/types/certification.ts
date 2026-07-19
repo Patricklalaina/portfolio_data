@@ -13,4 +13,8 @@ export interface Certification {
   date: string;
   credentialId: string;
   iconKey: string;
+  /** Link to verify the credential (issuer page, Credly, etc.) */
+  credentialUrl?: string | null;
+  /** Optional certificate image, stored as a data URL or external link. */
+  imageUrl?: string | null;
 }

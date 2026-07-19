@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { CheckCircle2, Cloud } from "lucide-react";
+import { CheckCircle2, Cloud, ExternalLink, Eye } from "lucide-react";
 import { DynamicIcon, iconNames, type IconName } from "lucide-react/dynamic";
 import { useListCertifications } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import React from "react";
 
 function CertIcon({ iconKey, className }: { iconKey: string; className?: string }) {
@@ -20,6 +21,7 @@ function parseCertYear(date: string | undefined): number {
 
 export function Certifications() {
   const { data: certs, isLoading } = useListCertifications();
+  const [previewCert, setPreviewCert] = React.useState<{ name: string; imageUrl: string } | null>(null);
 
   const sorted = React.useMemo(
     () => (Array.isArray(certs) ? [...certs] : []).sort(
@@ -78,12 +80,53 @@ export function Certifications() {
                     <span className="text-[10px] font-mono text-muted-foreground">{cert.credentialId}</span>
                     <span className="text-[10px] font-mono text-foreground">{cert.date}</span>
                   </div>
+
+                  {(cert.imageUrl || cert.credentialUrl) && (
+                    <div className="flex items-center gap-2 pt-3 mt-3 border-t border-border/50">
+                      {cert.imageUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setPreviewCert({ name: cert.name, imageUrl: cert.imageUrl! })}
+                          className="inline-flex items-center gap-1 text-[10px] font-mono uppercase text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          <Eye className="w-3 h-3" /> View
+                        </button>
+                      )}
+                      {cert.credentialUrl && (
+                        <a
+                          href={cert.credentialUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-[10px] font-mono uppercase text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          <ExternalLink className="w-3 h-3" /> Verify
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </motion.div>
               );
             })
           )}
         </div>
       </div>
+
+      <Dialog open={!!previewCert} onOpenChange={(open) => !open && setPreviewCert(null)}>
+        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle>{previewCert?.name}</DialogTitle>
+          </DialogHeader>
+          {previewCert && (
+            <div className="p-6 pt-4">
+              <img
+                src={previewCert.imageUrl}
+                alt={`${previewCert.name} certificate`}
+                className="w-full h-auto max-h-[75vh] object-contain border border-border"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

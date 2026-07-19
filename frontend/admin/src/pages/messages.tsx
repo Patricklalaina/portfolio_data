@@ -13,17 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export default function Messages() {
   const { data: messages, isLoading } = useListAdminMessages();
@@ -110,30 +100,17 @@ export default function Messages() {
                     <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
                   </TableCell>
                   <TableCell className="text-right">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
+                    <ConfirmDialog
+                      trigger={
                         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity">
                           <Trash2 className="w-4 h-4" />
                         </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete message?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will permanently remove the message from {msg.name}. This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={() => handleDelete(msg.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                      }
+                      title="Delete message?"
+                      description={<>This will permanently remove the message from <strong>{msg.name}</strong>. This action cannot be undone.</>}
+                      onConfirm={() => handleDelete(msg.id)}
+                      isLoading={deleteMutation.isPending}
+                    />
                   </TableCell>
                 </TableRow>
               ))

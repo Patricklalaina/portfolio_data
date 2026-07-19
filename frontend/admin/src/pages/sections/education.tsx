@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconPicker } from "@/components/ui/icon-picker";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 type EducationEntry = {
@@ -67,9 +68,7 @@ export default function EducationSection() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this entry?")) {
-      handleSave(entries.filter(e => e.id !== id));
-    }
+    handleSave(entries.filter(e => e.id !== id));
   };
 
   const submitDialog = () => {
@@ -141,9 +140,16 @@ export default function EducationSection() {
                     <Button variant="outline" size="sm" onClick={() => openEdit(entry)}>
                       <Pencil className="w-4 h-4 mr-2" /> Edit
                     </Button>
-                    <Button variant="outline" size="icon" className="text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={() => handleDelete(entry.id)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <ConfirmDialog
+                      trigger={
+                        <Button variant="outline" size="icon" className="text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      }
+                      title="Delete this entry?"
+                      description={<>This will permanently remove <strong>{entry.degree}</strong> from {entry.institution}. This action cannot be undone.</>}
+                      onConfirm={() => handleDelete(entry.id)}
+                    />
                   </div>
                 </div>
               </div>

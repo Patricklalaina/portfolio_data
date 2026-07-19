@@ -143,6 +143,14 @@ components:
           type: string
         iconKey:
           type: string
+        credentialUrl:
+          type: string
+          nullable: true
+          description: Link to verify the credential (issuer page, Credly, etc.)
+        imageUrl:
+          type: string
+          nullable: true
+          description: Optional certificate image, stored as a data URL or external link.
 
     # ─── Skills ────────────────────────────────────────────────────────────────
 

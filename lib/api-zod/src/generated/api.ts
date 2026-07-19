@@ -66,7 +66,9 @@ export const ListCertificationsResponseItem = zod.object({
   "org": zod.string(),
   "date": zod.string(),
   "credentialId": zod.string(),
-  "iconKey": zod.string()
+  "iconKey": zod.string(),
+  "credentialUrl": zod.string().nullish().describe('Link to verify the credential (issuer page, Credly, etc.)'),
+  "imageUrl": zod.string().nullish().describe('Optional certificate image, stored as a data URL or external link.')
 })
 export const ListCertificationsResponse = zod.array(ListCertificationsResponseItem)
 

@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { IconPicker } from "@/components/ui/icon-picker";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 async function authFetch(url: string, options: RequestInit = {}) {
   const token = localStorage.getItem('admin_token');
@@ -126,9 +127,7 @@ export default function ProjectsSection() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this project?")) {
-      handleSave(entries.filter(e => e.id !== id));
-    }
+    handleSave(entries.filter(e => e.id !== id));
   };
 
   const submitDialog = () => {
@@ -178,9 +177,16 @@ export default function ProjectsSection() {
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(entry)}>
                   <Pencil className="w-3 h-3" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive-foreground hover:bg-destructive" onClick={() => handleDelete(entry.id)}>
-                  <Trash2 className="w-3 h-3" />
-                </Button>
+                <ConfirmDialog
+                  trigger={
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive-foreground hover:bg-destructive">
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  }
+                  title="Delete this project?"
+                  description={<>This will permanently remove <strong>{entry.name}</strong> from your portfolio. This action cannot be undone.</>}
+                  onConfirm={() => handleDelete(entry.id)}
+                />
               </div>
               
               {entry.imageUrl && (
