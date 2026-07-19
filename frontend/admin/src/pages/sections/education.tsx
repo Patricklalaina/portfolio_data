@@ -7,16 +7,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconPicker } from "@/components/ui/icon-picker";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { formatDateRange } from "@/lib/date-utils";
 
 type EducationEntry = {
   id: number;
   degree: string;
   institution: string;
-  dateRange: string;
+  startDate: string;
+  endDate: string | null;
   focus: string;
   gpa: string;
   iconKey: string;
@@ -54,7 +57,8 @@ export default function EducationSection() {
       id: Date.now(),
       degree: "",
       institution: "",
-      dateRange: "",
+      startDate: "",
+      endDate: "",
       focus: "",
       gpa: "",
       iconKey: "graduation-cap"
@@ -120,7 +124,7 @@ export default function EducationSection() {
                     <h3 className="font-semibold text-lg">{entry.degree}</h3>
                     <p className="text-muted-foreground text-sm font-medium">{entry.institution}</p>
                     <div className="flex items-center gap-3 text-xs font-mono text-muted-foreground mt-1">
-                      <span>{entry.dateRange}</span>
+                      <span>{formatDateRange(entry.startDate, entry.endDate)}</span>
                       {entry.focus && (
                         <>
                           <span className="opacity-50">•</span>
@@ -175,18 +179,34 @@ export default function EducationSection() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Date Range</Label>
-                  <Input value={editingItem.dateRange} placeholder="e.g. 2018 - 2022" onChange={e => setEditingItem({...editingItem, dateRange: e.target.value})} />
+                  <Label>Start Date</Label>
+                  <Input
+                    type="month"
+                    value={editingItem.startDate}
+                    onChange={e => setEditingItem({...editingItem, startDate: e.target.value})}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>GPA (Optional)</Label>
-                  <Input value={editingItem.gpa} onChange={e => setEditingItem({...editingItem, gpa: e.target.value})} />
+                  <Label>End Date</Label>
+                  <Input
+                    type="month"
+                    value={editingItem.endDate ?? ""}
+                    disabled={editingItem.endDate === null}
+                    onChange={e => setEditingItem({...editingItem, endDate: e.target.value})}
+                  />
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
+                    <Checkbox
+                      checked={editingItem.endDate === null}
+                      onCheckedChange={(checked) => setEditingItem({...editingItem, endDate: checked ? null : ""})}
+                    />
+                    Currently in progress
+                  </label>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Focus / Major (Optional)</Label>
-                  <Input value={editingItem.focus} onChange={e => setEditingItem({...editingItem, focus: e.target.value})} />
+                  <Label>GPA (Optional)</Label>
+                  <Input value={editingItem.gpa} onChange={e => setEditingItem({...editingItem, gpa: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                   <Label>Icon</Label>
@@ -195,6 +215,10 @@ export default function EducationSection() {
                     onChange={(value) => setEditingItem({...editingItem, iconKey: value})}
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Focus / Major (Optional)</Label>
+                <Input value={editingItem.focus} onChange={e => setEditingItem({...editingItem, focus: e.target.value})} />
               </div>
             </div>
           )}

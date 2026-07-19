@@ -10,7 +10,10 @@ export interface ExperienceEntry {
   id: number;
   role: string;
   company: string;
-  dateRange: string;
+  /** Month the role started, format YYYY-MM. */
+  startDate: string;
+  /** Month the role ended, format YYYY-MM. Null/omitted means ongoing ("Present"). */
+  endDate?: string | null;
   employmentType: string;
   description: string;
   tech: string[];

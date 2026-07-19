@@ -49,7 +49,8 @@ export const ListExperienceResponseItem = zod.object({
   "id": zod.number(),
   "role": zod.string(),
   "company": zod.string(),
-  "dateRange": zod.string(),
+  "startDate": zod.string().describe('Month the role started, format YYYY-MM.'),
+  "endDate": zod.string().nullish().describe('Month the role ended, format YYYY-MM. Null\/omitted means ongoing (\"Present\").'),
   "employmentType": zod.string(),
   "description": zod.string(),
   "tech": zod.array(zod.string())
@@ -114,7 +115,8 @@ export const ListEducationResponseItem = zod.object({
   "id": zod.number(),
   "degree": zod.string(),
   "institution": zod.string(),
-  "dateRange": zod.string(),
+  "startDate": zod.string().describe('Month the program started, format YYYY-MM.'),
+  "endDate": zod.string().nullish().describe('Month the program ended, format YYYY-MM. Null\/omitted means ongoing.'),
   "focus": zod.string(),
   "iconKey": zod.string()
 })

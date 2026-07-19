@@ -1,15 +1,8 @@
 import { motion } from "framer-motion";
 import { Wrench } from "lucide-react";
-import { DynamicIcon, iconNames, type IconName } from "lucide-react/dynamic";
+import { ResolvedIcon } from "@/lib/icon-utils";
 import { useGetSkills } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
-
-function CategoryIcon({ iconKey, className }: { iconKey: string; className?: string }) {
-  if ((iconNames as readonly string[]).includes(iconKey)) {
-    return <DynamicIcon name={iconKey as IconName} className={className} />;
-  }
-  return <Wrench className={className} />;
-}
 
 export function Skills() {
   const { data, isLoading } = useGetSkills();
@@ -57,7 +50,7 @@ export function Skills() {
                   className="border border-border bg-card/30 p-6"
                 >
                   <div className="flex items-center gap-3 mb-8 pb-4 border-b border-border/50">
-                    <CategoryIcon iconKey={category.iconKey} className="w-5 h-5 text-primary" />
+                    <ResolvedIcon iconKey={category.iconKey} fallback={Wrench} className="w-5 h-5 text-primary" />
                     <h3 className="font-bold">{category.title}</h3>
                   </div>
 

@@ -1,17 +1,11 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, Cloud, ExternalLink, Eye } from "lucide-react";
-import { DynamicIcon, iconNames, type IconName } from "lucide-react/dynamic";
+import { ResolvedIcon } from "@/lib/icon-utils";
 import { useListCertifications } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatFullDate } from "@/lib/date-utils";
 import React from "react";
-
-function CertIcon({ iconKey, className }: { iconKey: string; className?: string }) {
-  if ((iconNames as readonly string[]).includes(iconKey)) {
-    return <DynamicIcon name={iconKey as IconName} className={className} />;
-  }
-  return <Cloud className={className} />;
-}
 
 function parseCertYear(date: string | undefined): number {
   if (!date) return 0;
@@ -70,7 +64,7 @@ export function Certifications() {
                   </div>
                   
                   <div className="w-10 h-10 border border-border flex items-center justify-center mb-6 group-hover:border-primary/30 transition-colors">
-                    <CertIcon iconKey={cert.iconKey} className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <ResolvedIcon iconKey={cert.iconKey} fallback={Cloud} className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
                   
                   <h3 className="font-bold text-sm text-foreground mb-1 pr-6">{cert.name}</h3>
@@ -78,7 +72,7 @@ export function Certifications() {
                   
                   <div className="flex items-center justify-between mt-auto pt-4 border-t border-border/50">
                     <span className="text-[10px] font-mono text-muted-foreground">{cert.credentialId}</span>
-                    <span className="text-[10px] font-mono text-foreground">{cert.date}</span>
+                    <span className="text-[10px] font-mono text-foreground">{formatFullDate(cert.date)}</span>
                   </div>
 
                   {(cert.imageUrl || cert.credentialUrl) && (

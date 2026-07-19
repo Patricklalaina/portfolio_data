@@ -2,23 +2,15 @@ import { motion } from "framer-motion";
 import { Building2 } from "lucide-react";
 import { useListExperience } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatDateRange, endYearForSort } from "@/lib/date-utils";
 import React from "react";
-
-function parseEndYear(dateRange: string | undefined): number {
-  if (!dateRange) return 0;
-  const parts = dateRange.split(/[—–-]/);
-  const end = (parts[1] ?? parts[0] ?? '').trim();
-  if (/present/i.test(end)) return 9999;
-  const year = parseInt(end, 10);
-  return isNaN(year) ? 0 : year;
-}
 
 export function Experience() {
   const { data: experiences, isLoading } = useListExperience();
 
   const sorted = React.useMemo(
     () => (Array.isArray(experiences) ? [...experiences] : []).sort(
-      (a, b) => parseEndYear(b.dateRange) - parseEndYear(a.dateRange)
+      (a, b) => endYearForSort(b.startDate, b.endDate) - endYearForSort(a.startDate, a.endDate)
     ),
     [experiences],
   );
@@ -91,7 +83,7 @@ export function Experience() {
 
                   <div className="flex items-center gap-3 ml-10 md:ml-0">
                     <span className="text-xs font-mono text-muted-foreground border border-border px-2 py-1 bg-card/50">
-                      {exp.dateRange}
+                      {formatDateRange(exp.startDate, exp.endDate)}
                     </span>
                     <span className="text-xs font-mono text-foreground border border-border px-2 py-1 bg-muted/50">
                       {exp.employmentType}

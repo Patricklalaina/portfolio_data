@@ -10,7 +10,10 @@ export interface EducationEntry {
   id: number;
   degree: string;
   institution: string;
-  dateRange: string;
+  /** Month the program started, format YYYY-MM. */
+  startDate: string;
+  /** Month the program ended, format YYYY-MM. Null/omitted means ongoing. */
+  endDate?: string | null;
   focus: string;
   iconKey: string;
 }

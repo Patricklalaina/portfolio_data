@@ -18,6 +18,11 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileMenuOpen]);
+
   const links = [
     { name: "Experience", href: "#experience", icon: Briefcase },
     { name: "Certifications", href: "#certifications", icon: Award },
@@ -29,8 +34,8 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b border-transparent ${
-        isScrolled ? "bg-background/80 backdrop-blur-md border-border py-3" : "py-5"
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b border-transparent transform-gpu ${
+        isScrolled ? "bg-background/95 backdrop-blur-md border-border py-3 shadow-sm" : "py-5"
       }`}
     >
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">

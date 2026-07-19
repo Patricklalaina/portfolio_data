@@ -1,31 +1,18 @@
 import { motion } from "framer-motion";
 import { GraduationCap } from "lucide-react";
-import { DynamicIcon, iconNames, type IconName } from "lucide-react/dynamic";
+import { ResolvedIcon } from "@/lib/icon-utils";
+import { formatDateRange, endYearForSort } from "@/lib/date-utils";
 import { useListEducation } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import React from "react";
-
-function EduIcon({ iconKey, className }: { iconKey: string; className?: string }) {
-  if ((iconNames as readonly string[]).includes(iconKey)) {
-    return <DynamicIcon name={iconKey as IconName} className={className} />;
-  }
-  return <GraduationCap className={className} />;
-}
-
-function parseEndYear(dateRange: string | undefined): number {
-  if (!dateRange) return 0;
-  const parts = dateRange.split(/[—–-]/);
-  const end = (parts[1] ?? parts[0] ?? '').trim();
-  if (/present/i.test(end)) return 9999;
-  const year = parseInt(end, 10);
-  return isNaN(year) ? 0 : year;
-}
 
 export function Education() {
   const { data: education, isLoading } = useListEducation();
 
   const sorted = React.useMemo(
-    () => (Array.isArray(education) ? [...education] : []).sort((a, b) => parseEndYear(b.dateRange) - parseEndYear(a.dateRange)),
+    () => (Array.isArray(education) ? [...education] : []).sort(
+      (a, b) => endYearForSort(b.startDate, b.endDate) - endYearForSort(a.startDate, a.endDate)
+    ),
     [education],
   );
 
@@ -64,7 +51,7 @@ export function Education() {
                   className="border border-border bg-card/30 p-8 flex flex-col items-start hover:border-primary/30 transition-colors"
                 >
                   <div className="w-12 h-12 border border-border bg-background flex items-center justify-center mb-6">
-                    <EduIcon iconKey={edu.iconKey} className="w-6 h-6 text-primary" />
+                    <ResolvedIcon iconKey={edu.iconKey} fallback={GraduationCap} className="w-6 h-6 text-primary" />
                   </div>
                   
                   <h3 className="text-xl font-bold mb-1">{edu.degree}</h3>
@@ -72,7 +59,7 @@ export function Education() {
                   
                   <div className="flex items-center gap-3 mb-6">
                     <span className="text-xs font-mono text-muted-foreground border border-border px-2 py-1 bg-background">
-                      {edu.dateRange}
+                      {formatDateRange(edu.startDate, edu.endDate)}
                     </span>
                   </div>
                   

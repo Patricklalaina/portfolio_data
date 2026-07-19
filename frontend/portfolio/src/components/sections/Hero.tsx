@@ -1,15 +1,8 @@
 import { motion } from "framer-motion";
 import { ChevronDown, MapPin, Github, Linkedin, Twitter, Star } from "lucide-react";
-import { DynamicIcon, iconNames, type IconName } from "lucide-react/dynamic";
+import { ResolvedIcon } from "@/lib/icon-utils";
 import { useGetProfile } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
-
-function StatIcon({ iconKey, className }: { iconKey: string; className?: string }) {
-  if ((iconNames as readonly string[]).includes(iconKey)) {
-    return <DynamicIcon name={iconKey as IconName} className={className} />;
-  }
-  return <Star className={className} />;
-}
 
 export function Hero() {
   const { data: profile, isLoading } = useGetProfile();
@@ -139,7 +132,7 @@ export function Hero() {
               profile.stats.map((stat, i) => {
                 return (
                   <div key={i} className="bg-card border border-border p-4 flex flex-col gap-2 hover:border-primary/30 transition-colors">
-                    <StatIcon iconKey={stat.iconKey} className="w-4 h-4 text-primary" />
+                    <ResolvedIcon iconKey={stat.iconKey} fallback={Star} className="w-4 h-4 text-primary" />
                     <span className="text-sm font-mono text-foreground">{stat.label}</span>
                   </div>
                 );

@@ -2,23 +2,25 @@ import { useState } from "react";
 import { useGetAdminSection, useUpdateAdminSection, getGetAdminSectionQueryKey } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { Plus, Pencil, Trash2, GripVertical } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { formatDateRange } from "@/lib/date-utils";
 
 type ExperienceEntry = {
   id: number;
   role: string;
   company: string;
-  dateRange: string;
+  startDate: string;
+  endDate: string | null;
   employmentType: string;
   description: string;
   tech: string[];
@@ -57,7 +59,8 @@ export default function ExperienceSection() {
       id: Date.now(),
       role: "",
       company: "",
-      dateRange: "",
+      startDate: "",
+      endDate: null,
       employmentType: "Full-time",
       description: "",
       tech: []
@@ -130,7 +133,7 @@ export default function ExperienceSection() {
                       <Badge variant="secondary" className="font-mono text-[10px] uppercase">{entry.employmentType}</Badge>
                     </div>
                     <p className="text-muted-foreground text-sm font-medium">{entry.company}</p>
-                    <p className="text-muted-foreground font-mono text-xs">{entry.dateRange}</p>
+                    <p className="text-muted-foreground font-mono text-xs">{formatDateRange(entry.startDate, entry.endDate)}</p>
                   </div>
                   
                   <div className="flex items-center gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
@@ -172,10 +175,30 @@ export default function ExperienceSection() {
                   <Input value={editingItem.company} onChange={e => setEditingItem({...editingItem, company: e.target.value})} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Date Range</Label>
-                  <Input value={editingItem.dateRange} placeholder="e.g. 2021 - Present" onChange={e => setEditingItem({...editingItem, dateRange: e.target.value})} />
+                  <Label>Start Date</Label>
+                  <Input
+                    type="month"
+                    value={editingItem.startDate}
+                    onChange={e => setEditingItem({...editingItem, startDate: e.target.value})}
+                  />
                 </div>
                 <div className="space-y-2">
+                  <Label>End Date</Label>
+                  <Input
+                    type="month"
+                    value={editingItem.endDate ?? ""}
+                    disabled={editingItem.endDate === null}
+                    onChange={e => setEditingItem({...editingItem, endDate: e.target.value})}
+                  />
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
+                    <Checkbox
+                      checked={editingItem.endDate === null}
+                      onCheckedChange={(checked) => setEditingItem({...editingItem, endDate: checked ? null : ""})}
+                    />
+                    Currently working here (Present)
+                  </label>
+                </div>
+                <div className="space-y-2 col-span-2">
                   <Label>Employment Type</Label>
                   <Input value={editingItem.employmentType} placeholder="e.g. Full-time, Contract" onChange={e => setEditingItem({...editingItem, employmentType: e.target.value})} />
                 </div>

@@ -1,16 +1,9 @@
 import { motion } from "framer-motion";
 import { Star, ExternalLink, Github, Globe } from "lucide-react";
-import { DynamicIcon, iconNames, type IconName } from "lucide-react/dynamic";
+import { ResolvedIcon } from "@/lib/icon-utils";
 import { useListProjects } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import React from "react";
-
-function ProjectIcon({ iconKey, className }: { iconKey: string; className?: string }) {
-  if ((iconNames as readonly string[]).includes(iconKey)) {
-    return <DynamicIcon name={iconKey as IconName} className={className} />;
-  }
-  return <Globe className={className} />;
-}
 
 const PROJ_COLORS: Record<string, string> = {
   blue: "bg-blue-900/20 text-blue-500",
@@ -106,7 +99,7 @@ export function Projects() {
                   <div className="p-6 flex flex-col flex-grow">
                     <div className="flex items-center gap-3 mb-3">
                       <div className={`p-1.5 rounded-sm ${colorClass}`}>
-                        <ProjectIcon iconKey={project.iconKey} className="w-4 h-4" />
+                        <ResolvedIcon iconKey={project.iconKey} fallback={Globe} className="w-4 h-4" />
                       </div>
                       <h4 className="font-bold text-lg">{project.name}</h4>
                     </div>

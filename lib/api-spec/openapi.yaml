@@ -106,7 +106,7 @@ components:
 
     ExperienceEntry:
       type: object
-      required: [id, role, company, dateRange, employmentType, description, tech]
+      required: [id, role, company, startDate, employmentType, description, tech]
       properties:
         id:
           type: integer
@@ -114,8 +114,13 @@ components:
           type: string
         company:
           type: string
-        dateRange:
+        startDate:
           type: string
+          description: "Month the role started, format YYYY-MM."
+        endDate:
+          type: string
+          nullable: true
+          description: "Month the role ended, format YYYY-MM. Null/omitted means ongoing (\"Present\")."
         employmentType:
           type: string
         description:
@@ -224,7 +229,7 @@ components:
 
     EducationEntry:
       type: object
-      required: [id, degree, institution, dateRange, focus, iconKey]
+      required: [id, degree, institution, startDate, focus, iconKey]
       properties:
         id:
           type: integer
@@ -232,8 +237,13 @@ components:
           type: string
         institution:
           type: string
-        dateRange:
+        startDate:
           type: string
+          description: "Month the program started, format YYYY-MM."
+        endDate:
+          type: string
+          nullable: true
+          description: "Month the program ended, format YYYY-MM. Null/omitted means ongoing."
         focus:
           type: string
         iconKey:

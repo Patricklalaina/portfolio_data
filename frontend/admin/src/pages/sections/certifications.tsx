@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { IconPicker } from "@/components/ui/icon-picker";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { formatFullDate } from "@/lib/date-utils";
 
 async function authFetch(url: string, options: RequestInit = {}) {
   const token = localStorage.getItem('admin_token');
@@ -183,7 +184,7 @@ export default function CertificationsSection() {
                   <h3 className="font-semibold text-lg leading-tight pr-16">{entry.name}</h3>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground font-medium">{entry.org}</span>
-                    <span className="text-muted-foreground font-mono text-xs">{entry.date}</span>
+                    <span className="text-muted-foreground font-mono text-xs">{formatFullDate(entry.date)}</span>
                   </div>
                   {entry.credentialId && (
                     <div className="pt-2">
@@ -251,7 +252,7 @@ export default function CertificationsSection() {
                 </div>
                 <div className="space-y-2">
                   <Label>Date Issued</Label>
-                  <Input value={editingItem.date} placeholder="e.g. 2023" onChange={e => setEditingItem({...editingItem, date: e.target.value})} />
+                  <Input type="date" value={editingItem.date} onChange={e => setEditingItem({...editingItem, date: e.target.value})} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
