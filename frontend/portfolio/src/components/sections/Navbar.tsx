@@ -35,7 +35,7 @@ export function Navbar() {
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b border-transparent transform-gpu ${
-        isScrolled ? "bg-background/95 backdrop-blur-md border-border py-3 shadow-sm" : "py-5"
+        isScrolled ? "bg-background backdrop-blur-md border-border py-3 shadow-sm" : "py-5"
       }`}
     >
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
@@ -117,7 +117,7 @@ export function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border flex flex-col px-6 pt-5 pb-8"
+            className="fixed inset-0 z-50 bg-background border-b border-border flex flex-col px-6 pt-5 pb-8 transform-gpu overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-10">
               <div className="flex items-center gap-2">
