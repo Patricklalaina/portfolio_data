@@ -6,7 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface StatItem {
+export interface SocialLink {
+  id: number;
+  /** Display name, e.g. GitHub, LinkedIn, Mastodon. */
+  platform: string;
+  url: string;
   iconKey: string;
-  label: string;
 }

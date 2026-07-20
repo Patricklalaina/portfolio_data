@@ -30,14 +30,12 @@ export const GetProfileResponse = zod.object({
   "email": zod.string(),
   "phone": zod.string(),
   "resumeUrl": zod.string(),
-  "socialLinks": zod.object({
-  "github": zod.string(),
-  "linkedin": zod.string(),
-  "twitter": zod.string()
-}),
-  "stats": zod.array(zod.object({
-  "iconKey": zod.string(),
-  "label": zod.string()
+  "contactMessage": zod.string().nullish().describe('Custom blurb shown above the contact form. Falls back to a default message if empty.'),
+  "socialLinks": zod.array(zod.object({
+  "id": zod.number(),
+  "platform": zod.string().describe('Display name, e.g. GitHub, LinkedIn, Mastodon.'),
+  "url": zod.string(),
+  "iconKey": zod.string()
 }))
 })
 

@@ -13,15 +13,12 @@ export interface ApiError {
   error: string;
 }
 
-export interface SocialLinks {
-  github: string;
-  linkedin: string;
-  twitter: string;
-}
-
-export interface StatItem {
+export interface SocialLink {
+  id: number;
+  /** Display name, e.g. GitHub, LinkedIn, Mastodon. */
+  platform: string;
+  url: string;
   iconKey: string;
-  label: string;
 }
 
 export interface Profile {
@@ -35,8 +32,9 @@ export interface Profile {
   email: string;
   phone: string;
   resumeUrl: string;
-  socialLinks: SocialLinks;
-  stats: StatItem[];
+  /** Custom blurb shown above the contact form. Falls back to a default message if empty. */
+  contactMessage?: string | null;
+  socialLinks: SocialLink[];
 }
 
 export interface ExperienceEntry {

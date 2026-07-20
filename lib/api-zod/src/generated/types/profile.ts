@@ -5,8 +5,7 @@
  * Portfolio API
  * OpenAPI spec version: 0.1.0
  */
-import type { SocialLinks } from './socialLinks';
-import type { StatItem } from './statItem';
+import type { SocialLink } from './socialLink';
 
 export interface Profile {
   name: string;
@@ -19,6 +18,7 @@ export interface Profile {
   email: string;
   phone: string;
   resumeUrl: string;
-  socialLinks: SocialLinks;
-  stats: StatItem[];
+  /** Custom blurb shown above the contact form. Falls back to a default message if empty. */
+  contactMessage?: string | null;
+  socialLinks: SocialLink[];
 }

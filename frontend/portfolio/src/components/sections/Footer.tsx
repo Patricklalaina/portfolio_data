@@ -1,4 +1,5 @@
-import { Github, Linkedin, Twitter } from "lucide-react";
+import { Link as LinkIcon } from "lucide-react";
+import { ResolvedIcon } from "@/lib/icon-utils";
 import { useGetProfile } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -21,21 +22,19 @@ export function Footer() {
               <Skeleton className="w-4 h-4" />
               <Skeleton className="w-4 h-4" />
             </>
-          ) : profile?.socialLinks && (
-            <>
-              <a href={profile.socialLinks.github} className="text-muted-foreground hover:text-foreground transition-colors">
-                <Github className="w-4 h-4" />
-                <span className="sr-only">GitHub</span>
+          ) : (
+            profile?.socialLinks?.map((social) => (
+              <a
+                key={social.id}
+                href={social.url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ResolvedIcon iconKey={social.iconKey} fallback={LinkIcon} className="w-4 h-4" />
+                <span className="sr-only">{social.platform}</span>
               </a>
-              <a href={profile.socialLinks.linkedin} className="text-muted-foreground hover:text-foreground transition-colors">
-                <Linkedin className="w-4 h-4" />
-                <span className="sr-only">LinkedIn</span>
-              </a>
-              <a href={profile.socialLinks.twitter} className="text-muted-foreground hover:text-foreground transition-colors">
-                <Twitter className="w-4 h-4" />
-                <span className="sr-only">Twitter</span>
-              </a>
-            </>
+            ))
           )}
         </div>
       </div>

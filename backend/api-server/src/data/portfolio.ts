@@ -28,16 +28,12 @@ export const profile: Profile = {
   email: "hello@yourname.com",
   phone: "+1 (555) 000-0000",
   resumeUrl: "/resume.pdf",
-  socialLinks: {
-    github: "https://github.com/yourname",
-    linkedin: "https://linkedin.com/in/yourname",
-    twitter: "https://twitter.com/yourname",
-  },
-  stats: [
-    { iconKey: "briefcase", label: "6+ Years Exp." },
-    { iconKey: "file-code", label: "40+ Projects" },
-    { iconKey: "star", label: "120 Stars" },
-    { iconKey: "award", label: "8 Certifications" },
+  contactMessage:
+    "I'm currently open to new opportunities. Whether you have a question, a project proposal, or just want to say hi, I'll try my best to get back to you!",
+  socialLinks: [
+    { id: 1, platform: "GitHub", url: "https://github.com/yourname", iconKey: "github" },
+    { id: 2, platform: "LinkedIn", url: "https://linkedin.com/in/yourname", iconKey: "linkedin" },
+    { id: 3, platform: "Twitter", url: "https://twitter.com/yourname", iconKey: "twitter" },
   ],
 };
 

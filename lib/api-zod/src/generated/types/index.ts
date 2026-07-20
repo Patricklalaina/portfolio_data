@@ -26,5 +26,4 @@ export * from './project';
 export * from './skillCategory';
 export * from './skillItem';
 export * from './skillsData';
-export * from './socialLinks';
-export * from './statItem';
+export * from './socialLink';

@@ -1,11 +1,21 @@
 import { motion } from "framer-motion";
-import { ChevronDown, MapPin, Github, Linkedin, Twitter, Star } from "lucide-react";
+import { ChevronDown, MapPin, Briefcase, FolderGit2, Award, Link as LinkIcon } from "lucide-react";
 import { ResolvedIcon } from "@/lib/icon-utils";
-import { useGetProfile } from "@workspace/api-client-react";
+import { computeYearsOfExperience } from "@/lib/date-utils";
+import { useGetProfile, useListExperience, useListProjects, useListCertifications } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function Hero() {
   const { data: profile, isLoading } = useGetProfile();
+  const { data: experiences } = useListExperience();
+  const { data: projects } = useListProjects();
+  const { data: certifications } = useListCertifications();
+
+  const stats = [
+    { icon: Briefcase, value: `${computeYearsOfExperience(experiences)}+`, label: "Years Experience" },
+    { icon: FolderGit2, value: String(projects?.length ?? 0), label: "Projects Shipped" },
+    { icon: Award, value: String(certifications?.length ?? 0), label: "Certifications" },
+  ];
 
   return (
     <section className="relative min-h-[100dvh] flex items-center pt-20 overflow-hidden">
@@ -93,19 +103,17 @@ export function Hero() {
                 <Skeleton className="h-5 w-5 rounded-full" />
                 <Skeleton className="h-5 w-5 rounded-full" />
               </>
-            ) : profile?.socialLinks && (
-              [
-                { icon: Github, href: profile.socialLinks.github, label: "GitHub" },
-                { icon: Linkedin, href: profile.socialLinks.linkedin, label: "LinkedIn" },
-                { icon: Twitter, href: profile.socialLinks.twitter, label: "Twitter" },
-              ].map((social, i) => (
-                <a 
-                  key={social.label} 
-                  href={social.href} 
+            ) : (
+              profile?.socialLinks?.map((social) => (
+                <a
+                  key={social.id}
+                  href={social.url}
+                  target="_blank"
+                  rel="noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors"
-                  aria-label={social.label}
+                  aria-label={social.platform}
                 >
-                  <social.icon className="w-5 h-5" />
+                  <ResolvedIcon iconKey={social.iconKey} fallback={LinkIcon} className="w-5 h-5" />
                 </a>
               ))
             )}
@@ -119,24 +127,24 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
           className="relative lg:ml-auto w-full max-w-md mx-auto lg:mx-0"
         >
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-3 mt-4">
+          {/* Stats Grid — computed automatically from Experience, Projects & Certifications */}
+          <div className="grid grid-cols-3 gap-3 mt-4">
             {isLoading ? (
-              Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="bg-card border border-border p-4 flex flex-col gap-2 hover:border-primary/30 transition-colors">
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-card border border-border p-4 flex flex-col gap-2">
                   <Skeleton className="w-4 h-4 mb-1" />
-                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-6 w-10" />
+                  <Skeleton className="h-3 w-16" />
                 </div>
               ))
-            ) : profile?.stats && (
-              profile.stats.map((stat, i) => {
-                return (
-                  <div key={i} className="bg-card border border-border p-4 flex flex-col gap-2 hover:border-primary/30 transition-colors">
-                    <ResolvedIcon iconKey={stat.iconKey} fallback={Star} className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-mono text-foreground">{stat.label}</span>
-                  </div>
-                );
-              })
+            ) : (
+              stats.map((stat, i) => (
+                <div key={i} className="bg-card border border-border p-4 flex flex-col gap-1.5 hover:border-primary/30 transition-colors">
+                  <stat.icon className="w-4 h-4 text-primary mb-1" />
+                  <span className="text-2xl font-bold text-foreground leading-none">{stat.value}</span>
+                  <span className="text-[11px] font-mono text-muted-foreground leading-tight">{stat.label}</span>
+                </div>
+              ))
             )}
           </div>
         </motion.div>

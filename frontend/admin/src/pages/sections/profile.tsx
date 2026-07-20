@@ -11,7 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconPicker } from "@/components/ui/icon-picker";
-import { Loader2, Save, Plus, Trash2 } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Loader2, Save, Plus, Trash2, BarChart3 } from "lucide-react";
 
 export default function ProfileSection() {
   const { data, isLoading } = useGetAdminSection("profile");
@@ -31,14 +32,15 @@ export default function ProfileSection() {
       email: "",
       phone: "",
       resumeUrl: "",
-      socialLinks: { github: "", linkedin: "", twitter: "" },
-      stats: [] as { iconKey: string; label: string }[]
+      contactMessage: "",
+      socialLinks: [] as { id: number; platform: string; url: string; iconKey: string }[],
     }
   });
 
-  const { fields: statFields, append: appendStat, remove: removeStat } = useFieldArray({
+  const { fields: socialFields, append: appendSocial, remove: removeSocial } = useFieldArray({
     control: form.control,
-    name: "stats"
+    name: "socialLinks",
+    keyName: "_fieldId",
   });
 
   useEffect(() => {
@@ -126,32 +128,32 @@ export default function ProfileSection() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Stats</CardTitle>
-              <CardDescription>Key metrics shown in the hero section</CardDescription>
+              <CardTitle className="text-lg">Contact Section</CardTitle>
+              <CardDescription>Shown above the contact form on the public site.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {statFields.map((field, index) => (
-                <div key={field.id} className="flex items-end gap-4 p-4 border rounded-md bg-muted/20">
-                  <div className="flex-1 space-y-2">
-                    <Label className="text-xs">Icon</Label>
-                    <IconPicker
-                      value={form.watch(`stats.${index}.iconKey` as const)}
-                      onChange={(value) => form.setValue(`stats.${index}.iconKey` as const, value, { shouldDirty: true })}
-                    />
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <Label className="text-xs">Label</Label>
-                    <Input {...form.register(`stats.${index}.label` as const)} placeholder="e.g. 5+ Years Exp" />
-                  </div>
-                  <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeStat(index)}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => appendStat({ iconKey: "star", label: "" })} className="w-full font-mono text-xs">
-                <Plus className="w-4 h-4 mr-2" /> Add Stat
-              </Button>
+              <div className="space-y-2">
+                <Label>Contact Message</Label>
+                <Textarea
+                  {...form.register("contactMessage")}
+                  rows={4}
+                  placeholder="I'm currently open to new opportunities. Whether you have a question, a project proposal, or just want to say hi, I'll try my best to get back to you!"
+                />
+                <p className="text-xs text-muted-foreground">Leave blank to use the default message.</p>
+              </div>
             </CardContent>
+          </Card>
+
+          <Card className="border-dashed bg-muted/10">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-primary" /> Hero Stats
+              </CardTitle>
+              <CardDescription>
+                Years of experience, project count, and certification count are calculated automatically
+                from your Experience, Projects, and Certifications data — no need to edit them here.
+              </CardDescription>
+            </CardHeader>
           </Card>
         </div>
 
@@ -188,21 +190,50 @@ export default function ProfileSection() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Social</CardTitle>
+              <CardTitle className="text-lg">Social Links</CardTitle>
+              <CardDescription>Shown in the hero and contact sections. Add as many as you like.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>GitHub URL</Label>
-                <Input {...form.register("socialLinks.github")} placeholder="https://github.com/..." />
-              </div>
-              <div className="space-y-2">
-                <Label>LinkedIn URL</Label>
-                <Input {...form.register("socialLinks.linkedin")} placeholder="https://linkedin.com/in/..." />
-              </div>
-              <div className="space-y-2">
-                <Label>Twitter / X URL</Label>
-                <Input {...form.register("socialLinks.twitter")} placeholder="https://x.com/..." />
-              </div>
+            <CardContent className="space-y-3">
+              {socialFields.map((field, index) => (
+                <div key={field._fieldId} className="space-y-2 p-3 border rounded-md bg-muted/20">
+                  <div className="flex items-center justify-between gap-2">
+                    <Input
+                      className="flex-1 font-medium"
+                      placeholder="Platform (e.g. GitHub)"
+                      {...form.register(`socialLinks.${index}.platform` as const)}
+                    />
+                    <ConfirmDialog
+                      trigger={
+                        <Button variant="ghost" size="icon" className="shrink-0 text-destructive">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      }
+                      title="Remove this social link?"
+                      description="This will remove it from your profile once you commit changes."
+                      confirmLabel="Remove"
+                      onConfirm={() => removeSocial(index)}
+                    />
+                  </div>
+                  <Input
+                    placeholder="https://…"
+                    {...form.register(`socialLinks.${index}.url` as const)}
+                  />
+                  <IconPicker
+                    value={form.watch(`socialLinks.${index}.iconKey` as const)}
+                    onChange={(value) => form.setValue(`socialLinks.${index}.iconKey` as const, value, { shouldDirty: true })}
+                    placeholder="Choose icon"
+                  />
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => appendSocial({ id: Date.now(), platform: "", url: "", iconKey: "link" })}
+                className="w-full font-mono text-xs"
+              >
+                <Plus className="w-4 h-4 mr-2" /> Add Social Link
+              </Button>
             </CardContent>
           </Card>
         </div>

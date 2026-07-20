@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, MapPin, Phone, Linkedin, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { Mail, MapPin, Phone, Link as LinkIcon, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { ResolvedIcon } from "@/lib/icon-utils";
 import { useGetProfile, useSendContactMessage } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
+
+const DEFAULT_CONTACT_MESSAGE =
+  "I'm currently open to new opportunities. Whether you have a question, a project proposal, or just want to say hi, I'll try my best to get back to you!";
 
 export function Contact() {
   const { data: profile, isLoading } = useGetProfile();
@@ -18,7 +22,12 @@ export function Contact() {
     { icon: Mail, label: "Email", value: profile.email, href: `mailto:${profile.email ?? ''}` },
     { icon: Phone, label: "Phone", value: profile.phone, href: `tel:${(profile.phone ?? '').replace(/\D/g, '')}` },
     { icon: MapPin, label: "Location", value: profile.location, href: "#" },
-    { icon: Linkedin, label: "LinkedIn", value: profile.socialLinks?.linkedin, href: profile.socialLinks?.linkedin ?? '#' },
+    ...(profile.socialLinks ?? []).map((social) => ({
+      icon: (props: { className?: string }) => <ResolvedIcon iconKey={social.iconKey} fallback={LinkIcon} className={props.className} />,
+      label: social.platform,
+      value: social.url,
+      href: social.url,
+    })),
   ] : [];
 
   return (
@@ -34,7 +43,7 @@ export function Contact() {
             </div>
             
             <p className="text-muted-foreground mb-12 max-w-md leading-relaxed">
-              I'm currently open to new opportunities. Whether you have a question, a project proposal, or just want to say hi, I'll try my best to get back to you!
+              {isLoading ? <Skeleton className="h-16 w-full" /> : (profile?.contactMessage || DEFAULT_CONTACT_MESSAGE)}
             </p>
 
             <div className="flex flex-col gap-4">

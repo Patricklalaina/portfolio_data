@@ -23,7 +23,22 @@ export function endYearForSort(startDate?: string | null, endDate?: string | nul
   return match ? Number(match[1]) : 0;
 }
 
-/** Formats a full "YYYY-MM-DD" date as "Mon DD, YYYY" (e.g. certification issue dates). */
+/** Computes whole years of experience from the earliest experience entry's startDate to today. */
+export function computeYearsOfExperience(experiences?: { startDate?: string | null }[] | null): number {
+  if (!experiences || experiences.length === 0) return 0;
+  const starts = experiences.map((e) => e.startDate).filter(Boolean) as string[];
+  if (starts.length === 0) return 0;
+  const earliest = [...starts].sort()[0];
+  const match = /^(\d{4})-(\d{2})$/.exec(earliest);
+  if (!match) return 0;
+  const [, yearStr, monthStr] = match;
+  const start = new Date(Number(yearStr), Number(monthStr) - 1, 1);
+  const now = new Date();
+  let years = now.getFullYear() - start.getFullYear();
+  if (now.getMonth() < start.getMonth()) years -= 1;
+  return Math.max(0, years);
+}
+
 export function formatFullDate(value?: string | null): string {
   if (!value) return "";
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
