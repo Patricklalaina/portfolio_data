@@ -104,7 +104,7 @@ export function Hero() {
                 <Skeleton className="h-5 w-5 rounded-full" />
               </>
             ) : (
-              profile?.socialLinks?.map((social) => (
+              (Array.isArray(profile?.socialLinks) ? profile.socialLinks : []).map((social) => (
                 <a
                   key={social.id}
                   href={social.url}

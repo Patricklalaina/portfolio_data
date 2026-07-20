@@ -2,6 +2,7 @@ import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { db, portfolioSections, contactMessages, resumeFile, projectImages } from "@workspace/db";
 import { SendContactMessageBody } from "@workspace/api-zod";
+import { normalizeSectionData } from "../lib/normalize-section.js";
 import {
   profile,
   experiences,
@@ -21,7 +22,7 @@ async function getSection(section: string, fallback: unknown): Promise<unknown> 
     .from(portfolioSections)
     .where(eq(portfolioSections.section, section));
 
-  if (rows.length > 0) return rows[0].data;
+  if (rows.length > 0) return normalizeSectionData(section, rows[0].data);
 
   await db
     .insert(portfolioSections)

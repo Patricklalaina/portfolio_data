@@ -22,7 +22,7 @@ export function Contact() {
     { icon: Mail, label: "Email", value: profile.email, href: `mailto:${profile.email ?? ''}` },
     { icon: Phone, label: "Phone", value: profile.phone, href: `tel:${(profile.phone ?? '').replace(/\D/g, '')}` },
     { icon: MapPin, label: "Location", value: profile.location, href: "#" },
-    ...(profile.socialLinks ?? []).map((social) => ({
+    ...(Array.isArray(profile.socialLinks) ? profile.socialLinks : []).map((social) => ({
       icon: (props: { className?: string }) => <ResolvedIcon iconKey={social.iconKey} fallback={LinkIcon} className={props.className} />,
       label: social.platform,
       value: social.url,

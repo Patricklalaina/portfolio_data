@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import { sql, desc, eq } from "drizzle-orm";
 import { db, portfolioSections, contactMessages, resumeFile, projectImages } from "@workspace/db";
 import { requireAdmin } from "../lib/auth.js";
+import { normalizeSectionData } from "../lib/normalize-section.js";
 import {
   AdminLoginBody,
   GetAdminSectionParams,
@@ -74,7 +75,7 @@ async function getOrSeedSection(section: Section): Promise<{ data: unknown; upda
     .where(eq(portfolioSections.section, section));
 
   if (rows.length > 0) {
-    return { data: rows[0].data, updatedAt: rows[0].updatedAt };
+    return { data: normalizeSectionData(section, rows[0].data), updatedAt: rows[0].updatedAt };
   }
 
   const now = new Date();

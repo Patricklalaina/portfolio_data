@@ -23,7 +23,7 @@ export function Footer() {
               <Skeleton className="w-4 h-4" />
             </>
           ) : (
-            profile?.socialLinks?.map((social) => (
+            (Array.isArray(profile?.socialLinks) ? profile.socialLinks : []).map((social) => (
               <a
                 key={social.id}
                 href={social.url}

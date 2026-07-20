@@ -45,7 +45,11 @@ export default function ProfileSection() {
 
   useEffect(() => {
     if (data?.data) {
-      form.reset(data.data as any);
+      const raw = data.data as any;
+      form.reset({
+        ...raw,
+        socialLinks: Array.isArray(raw.socialLinks) ? raw.socialLinks : [],
+      });
     }
   }, [data, form]);
 
