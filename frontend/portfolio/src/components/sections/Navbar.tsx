@@ -33,91 +33,96 @@ export function Navbar() {
   ];
 
   return (
-    <header
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b border-transparent transform-gpu ${
-        isScrolled ? "bg-background backdrop-blur-md border-border py-3 shadow-sm" : "py-5"
-      }`}
-    >
-      <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-2 group">
-          <div className="h-8 w-8 bg-muted flex items-center justify-center border border-border group-hover:border-primary/50 transition-colors">
+    <>
+      <header
+        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b border-transparent transform-gpu ${
+          isScrolled ? "bg-background backdrop-blur-md border-border py-3 shadow-sm" : "py-5"
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
+          <a href="#" className="flex items-center gap-2 group">
+            <div className="h-8 w-8 bg-muted flex items-center justify-center border border-border group-hover:border-primary/50 transition-colors">
+              {isLoading ? (
+                <Skeleton className="h-4 w-4" />
+              ) : (
+                <span className="font-mono text-xs font-bold text-primary">{profile?.initials}</span>
+              )}
+            </div>
             {isLoading ? (
-              <Skeleton className="h-4 w-4" />
+              <Skeleton className="h-4 w-20" />
             ) : (
-              <span className="font-mono text-xs font-bold text-primary">{profile?.initials}</span>
+              <span className="font-medium tracking-tight text-foreground group-hover:text-primary transition-colors">
+                {profile?.name}
+              </span>
             )}
-          </div>
-          {isLoading ? (
-            <Skeleton className="h-4 w-20" />
-          ) : (
-            <span className="font-medium tracking-tight text-foreground group-hover:text-primary transition-colors">
-              {profile?.name}
-            </span>
-          )}
-        </a>
-
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-6">
-          <div className="flex items-center gap-5 text-sm">
-            {links.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
-              >
-                <link.icon className="w-3.5 h-3.5" />
-                <span>{link.name}</span>
-              </a>
-            ))}
-          </div>
-          <div className="h-4 w-[1px] bg-border" />
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="h-8 w-8 flex items-center justify-center border border-border hover:border-primary/50 text-muted-foreground hover:text-primary transition-colors"
-          >
-            {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-          </button>
-          <a
-            href="/api/portfolio/resume"
-            target="_blank"
-            rel="noreferrer"
-            download="resume.pdf"
-            className="text-xs font-medium px-4 py-2 border border-border hover:border-primary/50 text-foreground hover:text-primary transition-colors flex items-center gap-2"
-          >
-            <Download className="w-3.5 h-3.5" />
-            Resume
           </a>
-        </nav>
 
-        {/* Mobile Toggle */}
-        <div className="md:hidden flex items-center gap-2">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="h-8 w-8 flex items-center justify-center border border-border text-muted-foreground hover:text-primary transition-colors"
-          >
-            {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-          </button>
-          <button
-            className="text-muted-foreground hover:text-foreground"
-            onClick={() => setMobileMenuOpen(true)}
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-6">
+            <div className="flex items-center gap-5 text-sm">
+              {links.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+                >
+                  <link.icon className="w-3.5 h-3.5" />
+                  <span>{link.name}</span>
+                </a>
+              ))}
+            </div>
+            <div className="h-4 w-[1px] bg-border" />
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="h-8 w-8 flex items-center justify-center border border-border hover:border-primary/50 text-muted-foreground hover:text-primary transition-colors"
+            >
+              {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            </button>
+            <a
+              href="/api/portfolio/resume"
+              target="_blank"
+              rel="noreferrer"
+              download="resume.pdf"
+              className="text-xs font-medium px-4 py-2 border border-border hover:border-primary/50 text-foreground hover:text-primary transition-colors flex items-center gap-2"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Resume
+            </a>
+          </nav>
+
+          {/* Mobile Toggle */}
+          <div className="md:hidden flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="h-8 w-8 flex items-center justify-center border border-border text-muted-foreground hover:text-primary transition-colors"
+            >
+              {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            </button>
+            <button
+              className="text-muted-foreground hover:text-foreground"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu — rendered as a sibling of <header>, not a descendant.
+          <header> has transform-gpu (translateZ(0)) for its own scroll-repaint fix,
+          which would otherwise make it the CSS containing block for this
+          fixed/inset-0 panel and shrink it down to the header's own height. */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-50 bg-background border-b border-border flex flex-col px-6 pt-5 pb-8 transform-gpu overflow-y-auto"
+            className="fixed inset-0 z-50 bg-background border-b border-border flex flex-col px-6 pt-5 pb-8 overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-10">
               <div className="flex items-center gap-2">
@@ -171,6 +176,6 @@ export function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }
