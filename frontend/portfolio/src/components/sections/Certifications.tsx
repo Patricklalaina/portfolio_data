@@ -3,7 +3,7 @@ import { ResolvedIcon } from "@/lib/icon-utils";
 import { useListCertifications } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Marquee } from "@/components/ui/marquee";
+import { AutoScrollRow } from "@/components/ui/auto-scroll-row";
 import { formatFullDate } from "@/lib/date-utils";
 import React from "react";
 
@@ -53,7 +53,7 @@ export function Certifications() {
           ) : sorted.length === 0 ? (
             <p className="text-sm text-muted-foreground font-mono">No certifications added yet.</p>
           ) : (
-            <Marquee direction="right" speed={Math.max(20, sorted.length * 6)} itemClassName="px-2">
+            <AutoScrollRow speed={35} itemClassName="px-2 py-1">
               {sorted.map((cert) => (
                 <div
                   key={cert.id}
@@ -100,7 +100,7 @@ export function Certifications() {
                   )}
                 </div>
               ))}
-            </Marquee>
+            </AutoScrollRow>
           )}
         </div>
       </div>
