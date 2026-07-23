@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ChevronDown, MapPin, Briefcase, FolderGit2, Award, Link as LinkIcon } from "lucide-react";
 import { ResolvedIcon } from "@/lib/icon-utils";
-import { computeYearsOfExperience } from "@/lib/date-utils";
+import { computeExperienceStat } from "@/lib/date-utils";
 import { useGetProfile, useListExperience, useListProjects, useListCertifications } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -11,8 +11,10 @@ export function Hero() {
   const { data: projects } = useListProjects();
   const { data: certifications } = useListCertifications();
 
+  const experienceStat = computeExperienceStat(experiences);
+
   const stats = [
-    { icon: Briefcase, value: `${computeYearsOfExperience(experiences)}+`, label: "Years Experience" },
+    { icon: Briefcase, value: experienceStat.value, label: experienceStat.label },
     { icon: FolderGit2, value: String(projects?.length ?? 0), label: "Projects Shipped" },
     { icon: Award, value: String(certifications?.length ?? 0), label: "Certifications" },
   ];
