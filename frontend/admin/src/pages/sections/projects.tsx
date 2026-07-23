@@ -34,6 +34,7 @@ type Project = {
   githubUrl: string;
   iconKey: string;
   colorKey: string;
+  category: string;
   imageUrl?: string | null;
 };
 
@@ -44,6 +45,7 @@ export default function ProjectsSection() {
   const queryClient = useQueryClient();
 
   const entries: Project[] = (data?.data as Project[]) || [];
+  const existingCategories = Array.from(new Set(entries.map(e => e.category).filter(Boolean))).sort();
   
   const [editingItem, setEditingItem] = useState<Project | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -114,6 +116,7 @@ export default function ProjectsSection() {
       githubUrl: "",
       iconKey: "folder",
       colorKey: "blue",
+      category: "General",
       imageUrl: null
     });
     setTechInput("");
@@ -195,14 +198,21 @@ export default function ProjectsSection() {
                 </div>
               )}
               <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-start gap-2">
                   <h3 className="font-semibold text-xl leading-tight pr-12">{entry.name}</h3>
                 </div>
-                {entry.stars > 0 && (
-                  <div className="flex items-center text-amber-500 text-xs font-mono mt-1">
-                    <Star className="w-3 h-3 fill-current mr-1" /> {entry.stars} stars
-                  </div>
-                )}
+                <div className="flex items-center gap-2 flex-wrap mt-1">
+                  {entry.category && (
+                    <span className="px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-mono uppercase tracking-wide">
+                      {entry.category}
+                    </span>
+                  )}
+                  {entry.stars > 0 && (
+                    <div className="flex items-center text-amber-500 text-xs font-mono">
+                      <Star className="w-3 h-3 fill-current mr-1" /> {entry.stars} stars
+                    </div>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="flex-1 flex flex-col">
                 <p className="text-muted-foreground text-sm flex-1">{entry.description}</p>
@@ -256,6 +266,19 @@ export default function ProjectsSection() {
                   <Label>GitHub Stars</Label>
                   <Input type="number" value={editingItem.stars} onChange={e => setEditingItem({...editingItem, stars: parseInt(e.target.value) || 0})} />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Input
+                  list="project-categories"
+                  value={editingItem.category}
+                  placeholder="e.g. Web App, Mobile, Data/ML, DevOps"
+                  onChange={e => setEditingItem({...editingItem, category: e.target.value})}
+                />
+                <datalist id="project-categories">
+                  {existingCategories.map((cat) => <option key={cat} value={cat} />)}
+                </datalist>
+                <p className="text-xs text-muted-foreground">Powers the filter bar on the public projects section.</p>
               </div>
               <div className="space-y-2">
                 <Label>Description</Label>

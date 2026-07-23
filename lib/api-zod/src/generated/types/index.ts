@@ -14,6 +14,7 @@ export * from './adminStatsSectionsItem';
 export * from './adminToken';
 export * from './apiError';
 export * from './certification';
+export * from './contactInfoItem';
 export * from './contactInput';
 export * from './contactMessage';
 export * from './contactResult';

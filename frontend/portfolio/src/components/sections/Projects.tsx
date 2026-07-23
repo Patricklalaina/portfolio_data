@@ -15,6 +15,7 @@ const PROJ_COLORS: Record<string, string> = {
 
 export function Projects() {
   const { data: projects, isLoading } = useListProjects();
+  const [activeCategory, setActiveCategory] = React.useState<string>("All");
 
   // Sort by id descending (higher id = more recently added)
   const sorted = React.useMemo(
@@ -22,12 +23,43 @@ export function Projects() {
     [projects],
   );
 
+  const categories = React.useMemo(
+    () => ["All", ...Array.from(new Set(sorted.map((p) => p.category).filter(Boolean)))],
+    [sorted],
+  );
+
+  const filtered = React.useMemo(
+    () => activeCategory === "All" ? sorted : sorted.filter((p) => p.category === activeCategory),
+    [sorted, activeCategory],
+  );
+
   return (
     <section id="projects" className="py-24 relative bg-card/20 border-y border-border">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold tracking-tight mb-2">Projects</h2>
-          <p className="text-muted-foreground font-mono text-sm">/ Selected open-source work</p>
+        <div className="mb-16 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight mb-2">Projects</h2>
+            <p className="text-muted-foreground font-mono text-sm">/ Selected open-source work</p>
+          </div>
+
+          {!isLoading && categories.length > 2 && (
+            <div className="flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setActiveCategory(cat)}
+                  className={`text-xs font-mono px-3 py-1.5 border transition-colors ${
+                    activeCategory === cat
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -58,8 +90,10 @@ export function Projects() {
                 </div>
               </div>
             ))
+          ) : filtered.length === 0 ? (
+            <p className="col-span-full text-sm text-muted-foreground font-mono">No projects in this category yet.</p>
           ) : (
-            sorted.map((project, index) => {
+            filtered.map((project, index) => {
               const colorClass = PROJ_COLORS[project.colorKey] ?? "bg-muted text-foreground";
               return (
                 <motion.div
@@ -101,7 +135,12 @@ export function Projects() {
                       <div className={`p-1.5 rounded-sm ${colorClass}`}>
                         <ResolvedIcon iconKey={project.iconKey} fallback={Globe} className="w-4 h-4" />
                       </div>
-                      <h4 className="font-bold text-lg">{project.name}</h4>
+                      <h4 className="font-bold text-lg flex-1">{project.name}</h4>
+                      {project.category && (
+                        <span className="text-[10px] font-mono uppercase tracking-wide text-muted-foreground border border-border px-2 py-0.5 shrink-0">
+                          {project.category}
+                        </span>
+                      )}
                     </div>
                     
                     <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-grow">

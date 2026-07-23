@@ -16,6 +16,8 @@ export interface Project {
   githubUrl: string;
   iconKey: string;
   colorKey: string;
+  /** Freeform grouping used to power the filter bar on the public site, e.g. Web App, Mobile, Data/ML. */
+  category: string;
   /** Optional preview screenshot/illustration, stored as a data URL or external link. */
   imageUrl?: string | null;
 }

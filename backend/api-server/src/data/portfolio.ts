@@ -30,6 +30,11 @@ export const profile: Profile = {
   resumeUrl: "/resume.pdf",
   contactMessage:
     "I'm currently open to new opportunities. Whether you have a question, a project proposal, or just want to say hi, I'll try my best to get back to you!",
+  contactInfo: [
+    { id: 1, label: "Email", value: "hello@yourname.com", url: "mailto:hello@yourname.com", iconKey: "mail" },
+    { id: 2, label: "Phone", value: "+1 (555) 000-0000", url: "tel:+15550000000", iconKey: "phone" },
+    { id: 3, label: "Location", value: "San Francisco, CA", url: null, iconKey: "map-pin" },
+  ],
   socialLinks: [
     { id: 1, platform: "GitHub", url: "https://github.com/yourname", iconKey: "github" },
     { id: 2, platform: "LinkedIn", url: "https://linkedin.com/in/yourname", iconKey: "linkedin" },
@@ -223,6 +228,7 @@ export const projects: Project[] = [
     githubUrl: "#",
     iconKey: "shield",
     colorKey: "blue",
+    category: "DevOps",
   },
   {
     id: 2,
@@ -235,6 +241,7 @@ export const projects: Project[] = [
     githubUrl: "#",
     iconKey: "globe",
     colorKey: "amber",
+    category: "Web App",
   },
   {
     id: 3,
@@ -247,6 +254,7 @@ export const projects: Project[] = [
     githubUrl: "#",
     iconKey: "terminal",
     colorKey: "emerald",
+    category: "Tools",
   },
 ];
 

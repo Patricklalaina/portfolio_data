@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Wrench } from "lucide-react";
 import { ResolvedIcon } from "@/lib/icon-utils";
+import { Marquee } from "@/components/ui/marquee";
 import { useGetSkills } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -79,28 +80,31 @@ export function Skills() {
           )}
         </div>
 
-        {/* Secondary Skills Pill Cloud */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="flex flex-wrap justify-center gap-2 max-w-4xl mx-auto"
-        >
-          {isLoading ? (
-            Array.from({ length: 15 }).map((_, idx) => (
+        {/* Secondary Skills — scrolling marquee since the list tends to be long */}
+        {isLoading ? (
+          <div className="flex justify-center gap-2 max-w-4xl mx-auto flex-wrap">
+            {Array.from({ length: 15 }).map((_, idx) => (
               <Skeleton key={idx} className="h-8 w-20" />
-            ))
-          ) : (
-            (Array.isArray(data?.secondary) ? data!.secondary : []).map((skill) => (
-              <span 
-                key={skill}
-                className="text-xs text-muted-foreground border border-border/50 px-3 py-1.5 hover:border-primary/30 hover:text-foreground transition-colors cursor-default"
-              >
-                {skill}
-              </span>
-            ))
-          )}
-        </motion.div>
+            ))}
+          </div>
+        ) : (Array.isArray(data?.secondary) ? data!.secondary : []).length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <Marquee direction="left" speed={Math.max(25, (data?.secondary?.length ?? 0) * 2.5)} itemClassName="px-1.5">
+              {(data?.secondary ?? []).map((skill) => (
+                <span
+                  key={skill}
+                  className="text-xs text-muted-foreground border border-border/50 px-3 py-1.5 hover:border-primary/30 hover:text-foreground transition-colors cursor-default whitespace-nowrap block"
+                >
+                  {skill}
+                </span>
+              ))}
+            </Marquee>
+          </motion.div>
+        )}
       </div>
     </section>
   );

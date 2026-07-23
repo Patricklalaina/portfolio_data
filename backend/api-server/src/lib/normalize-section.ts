@@ -66,7 +66,7 @@ function normalizeCertDate(value: unknown): unknown {
 
 function migrateProfile(data: unknown): unknown {
   if (!data || typeof data !== "object") return data;
-  const profile = data as Record<string, unknown>;
+  let profile = data as Record<string, unknown>;
 
   if (profile.socialLinks && !Array.isArray(profile.socialLinks)) {
     const legacy = profile.socialLinks as Record<string, unknown>;
@@ -83,10 +83,45 @@ function migrateProfile(data: unknown): unknown {
         url,
         iconKey: iconByPlatform[platform.toLowerCase()] ?? "link",
       }));
-    return { ...profile, socialLinks: migrated };
+    profile = { ...profile, socialLinks: migrated };
+  }
+
+  if (!Array.isArray(profile.contactInfo)) {
+    // Contact info used to be baked directly into fixed email/phone/location
+    // fields. Synthesize an equivalent editable list from whatever is present
+    // so existing deployments keep showing the same contact card on read.
+    const synthesized: Record<string, unknown>[] = [];
+    if (typeof profile.email === "string" && profile.email.trim()) {
+      synthesized.push({ id: 1, label: "Email", value: profile.email, url: `mailto:${profile.email}`, iconKey: "mail" });
+    }
+    if (typeof profile.phone === "string" && profile.phone.trim()) {
+      synthesized.push({
+        id: 2,
+        label: "Phone",
+        value: profile.phone,
+        url: `tel:${profile.phone.replace(/[^\d+]/g, "")}`,
+        iconKey: "phone",
+      });
+    }
+    if (typeof profile.location === "string" && profile.location.trim()) {
+      synthesized.push({ id: 3, label: "Location", value: profile.location, url: null, iconKey: "map-pin" });
+    }
+    profile = { ...profile, contactInfo: synthesized };
   }
 
   return profile;
+}
+
+function migrateProjects(data: unknown): unknown {
+  if (!Array.isArray(data)) return data;
+  return data.map((entry) => {
+    if (!entry || typeof entry !== "object") return entry;
+    const e = entry as Record<string, unknown>;
+    if (typeof e.category !== "string" || !e.category.trim()) {
+      return { ...e, category: "General" };
+    }
+    return e;
+  });
 }
 
 function migrateCertifications(data: unknown): unknown {
@@ -110,6 +145,8 @@ export function normalizeSectionData(section: string, data: unknown): unknown {
       return migrateDateRangeEntries(data);
     case "certifications":
       return migrateCertifications(data);
+    case "projects":
+      return migrateProjects(data);
     default:
       return data;
   }

@@ -36,7 +36,14 @@ export const GetProfileResponse = zod.object({
   "platform": zod.string().describe('Display name, e.g. GitHub, LinkedIn, Mastodon.'),
   "url": zod.string(),
   "iconKey": zod.string()
-}))
+})),
+  "contactInfo": zod.array(zod.object({
+  "id": zod.number(),
+  "label": zod.string().describe('e.g. Email, Phone, Location, Availability.'),
+  "value": zod.string().describe('Display text, e.g. hello@example.com.'),
+  "url": zod.string().nullish().describe('Optional link, e.g. mailto:hello@example.com or tel:+1555…. Omit for non-clickable entries like a location.'),
+  "iconKey": zod.string()
+})).describe('Contact methods shown on the Contact section — managed independently from socialLinks.')
 })
 
 
@@ -101,6 +108,7 @@ export const ListProjectsResponseItem = zod.object({
   "githubUrl": zod.string(),
   "iconKey": zod.string(),
   "colorKey": zod.string(),
+  "category": zod.string().describe('Freeform grouping used to power the filter bar on the public site, e.g. Web App, Mobile, Data\/ML.'),
   "imageUrl": zod.string().nullish().describe('Optional preview screenshot\/illustration, stored as a data URL or external link.')
 })
 export const ListProjectsResponse = zod.array(ListProjectsResponseItem)

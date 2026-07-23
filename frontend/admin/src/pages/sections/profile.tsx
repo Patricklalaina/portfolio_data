@@ -34,6 +34,7 @@ export default function ProfileSection() {
       resumeUrl: "",
       contactMessage: "",
       socialLinks: [] as { id: number; platform: string; url: string; iconKey: string }[],
+      contactInfo: [] as { id: number; label: string; value: string; url?: string | null; iconKey: string }[],
     }
   });
 
@@ -43,12 +44,19 @@ export default function ProfileSection() {
     keyName: "_fieldId",
   });
 
+  const { fields: contactFields, append: appendContact, remove: removeContact } = useFieldArray({
+    control: form.control,
+    name: "contactInfo",
+    keyName: "_fieldId",
+  });
+
   useEffect(() => {
     if (data?.data) {
       const raw = data.data as any;
       form.reset({
         ...raw,
         socialLinks: Array.isArray(raw.socialLinks) ? raw.socialLinks : [],
+        contactInfo: Array.isArray(raw.contactInfo) ? raw.contactInfo : [],
       });
     }
   }, [data, form]);
@@ -164,7 +172,8 @@ export default function ProfileSection() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Contact</CardTitle>
+              <CardTitle className="text-lg">Basic Info</CardTitle>
+              <CardDescription>Core identity fields. The Contact section below uses "Contact Info" instead.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-3 border rounded-md bg-muted/20">
@@ -194,8 +203,64 @@ export default function ProfileSection() {
 
           <Card>
             <CardHeader>
+              <CardTitle className="text-lg">Contact Info</CardTitle>
+              <CardDescription>
+                The list of methods shown on the Contact section (Email, Phone, Location, or anything else).
+                Managed independently from Social Links below.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {contactFields.map((field, index) => (
+                <div key={field._fieldId} className="space-y-2 p-3 border rounded-md bg-muted/20">
+                  <div className="flex items-center justify-between gap-2">
+                    <Input
+                      className="flex-1 font-medium"
+                      placeholder="Label (e.g. Email)"
+                      {...form.register(`contactInfo.${index}.label` as const)}
+                    />
+                    <ConfirmDialog
+                      trigger={
+                        <Button variant="ghost" size="icon" className="shrink-0 text-destructive">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      }
+                      title="Remove this contact entry?"
+                      description="This will remove it from your Contact section once you commit changes."
+                      confirmLabel="Remove"
+                      onConfirm={() => removeContact(index)}
+                    />
+                  </div>
+                  <Input
+                    placeholder="Display value (e.g. hello@example.com)"
+                    {...form.register(`contactInfo.${index}.value` as const)}
+                  />
+                  <Input
+                    placeholder="Link (optional, e.g. mailto:hello@example.com)"
+                    {...form.register(`contactInfo.${index}.url` as const)}
+                  />
+                  <IconPicker
+                    value={form.watch(`contactInfo.${index}.iconKey` as const)}
+                    onChange={(value) => form.setValue(`contactInfo.${index}.iconKey` as const, value, { shouldDirty: true })}
+                    placeholder="Choose icon"
+                  />
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => appendContact({ id: Date.now(), label: "", value: "", url: "", iconKey: "mail" })}
+                className="w-full font-mono text-xs"
+              >
+                <Plus className="w-4 h-4 mr-2" /> Add Contact Entry
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle className="text-lg">Social Links</CardTitle>
-              <CardDescription>Shown in the hero and contact sections. Add as many as you like.</CardDescription>
+              <CardDescription>Shown in the hero and footer. Add as many as you like.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {socialFields.map((field, index) => (

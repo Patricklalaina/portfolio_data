@@ -21,6 +21,17 @@ export interface SocialLink {
   iconKey: string;
 }
 
+export interface ContactInfoItem {
+  id: number;
+  /** e.g. Email, Phone, Location, Availability. */
+  label: string;
+  /** Display text, e.g. hello@example.com. */
+  value: string;
+  /** Optional link, e.g. mailto:hello@example.com or tel:+1555…. Omit for non-clickable entries like a location. */
+  url?: string | null;
+  iconKey: string;
+}
+
 export interface Profile {
   name: string;
   initials: string;
@@ -35,6 +46,8 @@ export interface Profile {
   /** Custom blurb shown above the contact form. Falls back to a default message if empty. */
   contactMessage?: string | null;
   socialLinks: SocialLink[];
+  /** Contact methods shown on the Contact section — managed independently from socialLinks. */
+  contactInfo: ContactInfoItem[];
 }
 
 export interface ExperienceEntry {
@@ -89,6 +102,8 @@ export interface Project {
   githubUrl: string;
   iconKey: string;
   colorKey: string;
+  /** Freeform grouping used to power the filter bar on the public site, e.g. Web App, Mobile, Data/ML. */
+  category: string;
   /** Optional preview screenshot/illustration, stored as a data URL or external link. */
   imageUrl?: string | null;
 }

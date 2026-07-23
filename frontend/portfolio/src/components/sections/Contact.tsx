@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, MapPin, Phone, Link as LinkIcon, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { Mail, ArrowUpRight, CheckCircle2, Link as LinkIcon } from "lucide-react";
 import { ResolvedIcon } from "@/lib/icon-utils";
 import { useGetProfile, useSendContactMessage } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,17 +18,8 @@ export function Contact() {
     mutation.mutate({ data: { name: formData.name, email: formData.email, message: formData.message } });
   };
 
-  const contactMethods = profile ? [
-    { icon: Mail, label: "Email", value: profile.email, href: `mailto:${profile.email ?? ''}` },
-    { icon: Phone, label: "Phone", value: profile.phone, href: `tel:${(profile.phone ?? '').replace(/\D/g, '')}` },
-    { icon: MapPin, label: "Location", value: profile.location, href: "#" },
-    ...(Array.isArray(profile.socialLinks) ? profile.socialLinks : []).map((social) => ({
-      icon: (props: { className?: string }) => <ResolvedIcon iconKey={social.iconKey} fallback={LinkIcon} className={props.className} />,
-      label: social.platform,
-      value: social.url,
-      href: social.url,
-    })),
-  ] : [];
+  const contactMethods = Array.isArray(profile?.contactInfo) ? profile.contactInfo : [];
+  const socialLinks = Array.isArray(profile?.socialLinks) ? profile.socialLinks : [];
 
   return (
     <section id="contact" className="py-24 relative bg-card/10 border-t border-border">
@@ -48,7 +39,7 @@ export function Contact() {
 
             <div className="flex flex-col gap-4">
               {isLoading ? (
-                Array.from({ length: 4 }).map((_, idx) => (
+                Array.from({ length: 3 }).map((_, idx) => (
                   <div key={idx} className="flex items-center justify-between p-4 border border-border bg-card/30">
                     <div className="flex items-center gap-4">
                       <Skeleton className="w-8 h-8 rounded-sm" />
@@ -59,27 +50,53 @@ export function Contact() {
                     </div>
                   </div>
                 ))
+              ) : contactMethods.length === 0 ? (
+                <p className="text-sm text-muted-foreground font-mono">No contact info added yet.</p>
               ) : (
-                contactMethods.map((method, idx) => (
-                  <a 
-                    key={idx} 
-                    href={method.href}
-                    className="flex items-center justify-between p-4 border border-border bg-card/30 hover:border-primary/50 hover:bg-card/50 transition-colors group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 border border-border bg-background group-hover:border-primary/30 transition-colors">
-                        <method.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                contactMethods.map((method) => {
+                  const Wrapper = method.url ? "a" : "div";
+                  return (
+                    <Wrapper
+                      key={method.id}
+                      {...(method.url ? { href: method.url } : {})}
+                      className="flex items-center justify-between p-4 border border-border bg-card/30 hover:border-primary/50 hover:bg-card/50 transition-colors group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 border border-border bg-background group-hover:border-primary/30 transition-colors">
+                          <ResolvedIcon iconKey={method.iconKey} fallback={Mail} className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-mono text-muted-foreground mb-1">{method.label}</p>
+                          <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{method.value}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs font-mono text-muted-foreground mb-1">{method.label}</p>
-                        <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{method.value}</p>
-                      </div>
-                    </div>
-                    <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </a>
-                ))
+                      {method.url && <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />}
+                    </Wrapper>
+                  );
+                })
               )}
             </div>
+
+            {/* Social links — managed separately from Contact Info above */}
+            {!isLoading && socialLinks.length > 0 && (
+              <div className="flex items-center gap-4 mt-8 pt-8 border-t border-border">
+                <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Connect</span>
+                <div className="flex items-center gap-3">
+                  {socialLinks.map((social) => (
+                    <a
+                      key={social.id}
+                      href={social.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={social.platform}
+                      className="p-2 border border-border bg-card/30 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
+                    >
+                      <ResolvedIcon iconKey={social.iconKey} fallback={LinkIcon} className="w-4 h-4" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column (Form) */}
