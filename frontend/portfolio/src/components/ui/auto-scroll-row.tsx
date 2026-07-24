@@ -28,12 +28,15 @@ export function AutoScrollRow({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
   const resumeTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const isDragging = useRef(false);
-  const dragStart = useRef({ x: 0, scrollLeft: 0 });
-  const dragDistance = useRef(0);
+  // "pending" = pointer is down but we haven't decided yet whether this is a
+  // tap or a drag. "active" = movement crossed the threshold, we're dragging.
+  const pointerState = useRef<"idle" | "pending" | "active">("idle");
+  const dragStart = useRef({ x: 0, scrollLeft: 0, pointerId: 0 });
   const wasDragging = useRef(false);
   const didInitPosition = useRef(false);
   const items = Children.toArray(children);
+
+  const DRAG_THRESHOLD = 6;
 
   const pauseTemporarily = (ms = 3000) => {
     setIsPaused(true);
@@ -58,7 +61,7 @@ export function AutoScrollRow({
           didInitPosition.current = true;
         }
         const dt = (now - last) / 1000;
-        if (!isPaused && !isDragging.current && half > 0) {
+        if (!isPaused && pointerState.current !== "active" && half > 0) {
           el.scrollLeft -= speed * dt;
           if (el.scrollLeft <= 0) el.scrollLeft += half;
         }
@@ -77,30 +80,43 @@ export function AutoScrollRow({
     scrollRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
   };
 
+  // Pointer down only *arms* a potential drag — it does NOT capture the
+  // pointer or pause auto-scroll yet. Capturing immediately on down is what
+  // breaks plain clicks (notably in Safari, which can suppress the
+  // subsequent click event once setPointerCapture has been called), so a tap
+  // on a "View"/"Verify" button must be able to complete untouched.
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     const el = scrollRef.current;
     if (!el) return;
-    isDragging.current = true;
-    dragDistance.current = 0;
-    setIsPaused(true);
-    dragStart.current = { x: e.clientX, scrollLeft: el.scrollLeft };
-    el.setPointerCapture(e.pointerId);
+    pointerState.current = "pending";
+    dragStart.current = { x: e.clientX, scrollLeft: el.scrollLeft, pointerId: e.pointerId };
   };
 
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
-    if (!isDragging.current || !scrollRef.current) return;
+    const el = scrollRef.current;
+    if (!el || pointerState.current === "idle") return;
+
     const dx = e.clientX - dragStart.current.x;
-    dragDistance.current = Math.max(dragDistance.current, Math.abs(dx));
-    scrollRef.current.scrollLeft = dragStart.current.scrollLeft - dx;
+
+    if (pointerState.current === "pending") {
+      if (Math.abs(dx) < DRAG_THRESHOLD) return;
+      // Threshold crossed — this is now a genuine drag. Capture from here on.
+      pointerState.current = "active";
+      setIsPaused(true);
+      el.setPointerCapture(dragStart.current.pointerId);
+    }
+
+    el.scrollLeft = dragStart.current.scrollLeft - dx;
   };
 
   const endDrag = () => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-    // A real drag (not just a tap) should not also fire a click on whatever
-    // was under the pointer (e.g. a "Verify" link) — swallow the next click.
-    wasDragging.current = dragDistance.current > 6;
-    pauseTemporarily();
+    if (pointerState.current === "active") {
+      // Suppress the click that would otherwise fire on whatever element is
+      // under the pointer at release (e.g. a certificate's "Verify" link).
+      wasDragging.current = true;
+      pauseTemporarily();
+    }
+    pointerState.current = "idle";
   };
 
   const onClickCapture = (e: MouseEvent) => {
@@ -123,7 +139,9 @@ export function AutoScrollRow({
           WebkitMaskImage: "linear-gradient(to right, transparent, black 3%, black 97%, transparent)",
         }}
         onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => !isDragging.current && setIsPaused(false)}
+        onMouseLeave={() => {
+          if (pointerState.current !== "active") setIsPaused(false);
+        }}
         onWheel={() => pauseTemporarily()}
         onTouchStart={() => setIsPaused(true)}
         onTouchEnd={() => pauseTemporarily()}
